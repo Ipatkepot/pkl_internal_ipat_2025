@@ -42,7 +42,7 @@ class GoogleController extends Controller
 
         return Socialite::driver('google')
         // ->stateless() // Opsional: Gunakan jika error "InvalidStateException" terus muncul (bypass session state check)
-            ->scopes(['email', 'profile'])
+            ->scopes(['email', 'profile' , 'openid'])
         // ↑ Scopes menentukan data apa yang kita minta
         // 'email'   = Alamat email user
         // 'profile' = Nama dan foto profil
