@@ -1,135 +1,104 @@
 <?php
 // ========================================
-// FILE: app/Http/Controllers/Auth/LoginController.php
-// FUNGSI: Mengatur proses login user
+// FILE: app/Http/Controllers/Auth/RegisterController.php
+// FUNGSI: Mengatur proses registrasi user baru
 // ========================================
 
 namespace App\Http\Controllers\Auth;
 
-// ↑ Namespace adalah "alamat" file ini dalam struktur folder
-// App\Http\Controllers\Auth berarti file ada di app/Http/Controllers/Auth/
-
 use App\Http\Controllers\Controller;
-// ↑ Import class Controller sebagai parent class
+use App\Models\User;                           // Model User untuk berinteraksi dengan tabel users
+use Illuminate\Foundation\Auth\RegistersUsers; // Trait Laravel untuk logic registrasi
+use Illuminate\Support\Facades\Hash;           // Facade Hash untuk enkripsi password
+use Illuminate\Support\Facades\Validator;
+// Facade Validator untuk validasi input
 
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-
-// ↑ Import trait yang berisi logic login (attempt, logout, dll)
-// Trait adalah kumpulan method yang bisa di-reuse oleh banyak class
-
-class LoginController extends Controller
+class RegisterController extends Controller
 {
     // ================================================
-    // TRAIT: AuthenticatesUsers
+    // TRAIT: RegistersUsers
     // ================================================
-    // Trait ini menyediakan method inti:
-    // - showLoginForm()  → Menampilkan view auth.login
-    // - login()          → Menangani POST request login
-    // - logout()         → Menangani POST request logout
-    // - sendFailedLoginResponse() → Return error jika salah password
+    // Trait ini yang melakukan pekerjaan berat:
+    // - Menangani routes GET /register (tampil form)
+    // - Menangani routes POST /register (proses submit)
+    // - Login otomatis setelah register sukses
     // ================================================
-    use AuthenticatesUsers;
+    use RegistersUsers;
 
     /**
-     * Redirect setelah login berhasil.
-     *
-     * Property ini menentukan kemana user diarahkan
-     * setelah berhasil login jika tidak ada logic khusus.
-     *
-     * @var string
+     * Redirect setelah registrasi berhasil.
      */
     protected $redirectTo = '/home';
-    // ↑ Default: arahkan ke /home
 
     /**
-     * Constructor: Method yang dipanggil saat class dibuat.
-     *
-     * Di sini kita mengatur middleware (filter) untuk controller ini.
+     * Constructor.
      */
     public function __construct()
     {
-        // ================================================
-        // MIDDLEWARE: guest
-        // ================================================
-        // Artinya: Hanya user yang BELUM LOGIN (guest)
-        // yang bisa mengakses halaman login.
-        //
-        // Logika: Kalau user sudah login, mereka akan di-redirect
-        // ke halaman home jika mencoba buka /login lagi.
-        //
-        // except('logout'): Method logout DIKECUALIKAN.
-        // Logout boleh (dan harus) diakses oleh user yang sudah login.
-        // ================================================
-        $this->middleware('guest')->except('logout');
-
-        // ================================================
-        // MIDDLEWARE: auth (Tambahan untuk Logout)
-        // ================================================
-        // Kita bisa memastikan hanya user yang login yang bisa logout.
-        // ================================================
-        $this->middleware('auth')->only('logout');
+        // Hanya guest (belum login) yang bisa akses form register.
+        // User yang sudah login akan di-redirect ke home.
+        $this->middleware('guest');
     }
 
     /**
-     * Override method redirectTo untuk custom redirect.
+     * Validasi data registrasi.
      *
-     * Method ini akan dipanggil otomatis oleh Laravel jika ada,
-     * menggantikan property $redirectTo di atas.
+     * Method ini menentukan aturan validasi untuk input form.
      *
-     * Gunanya untuk logika redirect dinamis (misal beda role).
-     *
-     * @return string URL tujuan redirect
+     * @param array $data Data dari request
+     * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function redirectTo(): string
+    protected function validator(array $data)
     {
-        // ================================================
-        // LOGIKA REDIRECT DINAMIS
-        // ================================================
+        return Validator::make($data, [
+            // RULES VALIDASI
 
-        // Ambil user yang sedang login saat ini
-        $user = auth()->user();
+            'name'     => ['required', 'string', 'max:255'],
+            // ↑ Nama wajib, string, maksimal 255 char
 
-        // Jika role-nya admin, arahkan ke dashboard admin
-        if ($user->role === 'admin') {
-            return route('admin.dashboard');
-            // ↑ Menggunakan route helper lebih aman daripada hardcode URL '/admin/dashboard'
-        }
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            // ↑ unique:users = Cek tabel 'users', kolom 'email'.
+            //   Jika email sudah ada, validasi gagal. PENTING!
 
-        // Jika customer biasa, arahkan ke home landing page
-        return route('home');
-    }
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            // ↑ confirmed = Laravel akan mencari field bernama 'password_confirmation'
+            //   dan memastikan nilainya SAMA PERSIS dengan field 'password'.
+            //   Biasanya field ini ada di form register: <input name="password_confirmation">
 
-    /**
-     * Override untuk custom validation rules.
-     *
-     * Method ini mengatur aturan validasi input dari form login.
-     * Jika validasi gagal, user dikembalikan ke form dengan pesan error.
-     *
-     * @param \Illuminate\Http\Request $request
-     */
-    protected function validateLogin($request): void
-    {
-        // ================================================
-        // VALIDASI INPUT LOGIN
-        // ================================================
-
-        $request->validate([
-            // $this->username() defaultnya return 'email'
-            // Kita bisa ubah method username() jika ingin login pakai username/no hp
-            $this->username() => 'required|string|email',
-            // ↑ required = wajib diisi
-            // ↑ email    = format harus valid (ada @ dan .)
-
-            'password'        => 'required|string|min:6',
-            // ↑ min:6 = minimal 6 karakter (opsional, untuk security dasar)
         ], [
-            // ================================================
-            // CUSTOM ERROR MESSAGES (Bahasa Indonesia)
-            // ================================================
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid (harus ada @).',
-            'password.required' => 'Password wajib diisi.',
-            'password.min'      => 'Password minimal 6 karakter.',
+            // CUSTOM MESSAGES
+            'name.required'      => 'Nama wajib diisi.',
+            'email.required'     => 'Email wajib diisi.',
+            'email.unique'       => 'Email sudah terdaftar. Gunakan email lain.',
+            'password.min'       => 'Password minimal 8 karakter agar aman.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+    }
+
+    /**
+     * Buat user baru setelah validasi berhasil.
+     *
+     * Method ini dieksekusi oleh Trait RegistersUsers setelah validasi lolos.
+     *
+     * @param array $data Data valid
+     * @return \App\Models\User Object user baru
+     */
+    protected function create(array $data): User
+    {
+        // ================================================
+        // CREATE USER + HASH PASSWORD
+        // ================================================
+        return User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+
+            // SECURITY CRITICAL: Password MENDATORY di-hash!
+            // Jangan pernah menyimpan password plaintext.
+            // Hash::make() menggunakan algoritma Bcrypt (default aman).
+            'password' => Hash::make($data['password']),
+
+            // Set role default. Pastikan 'customer', jangan 'admin'.
+            'role'     => 'customer',
         ]);
     }
 }

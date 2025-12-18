@@ -1,0 +1,111 @@
+/* ===============================
+   ELEGANT DARK SOFT BROWN SIDEBAR
+==================================*/
+
+.menu {
+  background-color: #6E5444 !important;
+  /* Medium-dark soft brown */
+  border-right: none !important;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Menu Item */
+.menu .menu-item {
+  margin-bottom: 4px;
+}
+
+/* Menu Link */
+.menu .menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: #F4EDE7 !important;
+  /* Light cream */
+  transition: 0.25s ease;
+}
+
+/* Icon */
+.menu .menu-icon {
+  font-size: 18px;
+  color: #E8D9D0 !important;
+  transition: 0.25s ease;
+}
+
+/* Hover & Active */
+.menu .menu-item.active .menu-link,
+.menu .menu-link:hover {
+  background-color: #543E32 !important;
+  /* Deep brown */
+  color: #FFFFFF !important;
+}
+
+.menu .menu-item.active .menu-icon,
+.menu .menu-link:hover .menu-icon {
+  color: #FFFFFF !important;
+}
+
+/* Section Title (optional) */
+.menu .menu-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 18px 20px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Divider */
+.menu-divider {
+  height: 1px;
+  margin: 12px 20px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+.app-brand.demo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px;
+}
+
+.app-brand-text.demo {
+  font-family: "Playfair Display", serif !important;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: #F4EDE7 !important; /* cream elegan */
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+/* Logo agar lebih elegan */
+.app-brand-logo.demo svg {
+  width: 28px;
+  height: 28px;
+  fill: #F4EDE7 !important;
+  opacity: 0.9;
+}
+
+/* Text brown */
+.text-brown {
+  color: #6E5444 !important;
+  /* Soft dark brown */
+}
+
+/* Outline brown button */
+.btn-outline-brown {
+  border: 1px solid #6E5444 !important;
+  color: #6E5444 !important;
+  transition: 0.3s ease;
+}
+
+.btn-outline-brown:hover {
+  background-color: #6E5444 !important;
+  color: #fff !important;
+}
