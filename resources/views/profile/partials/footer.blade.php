@@ -9,16 +9,16 @@
             {{-- Brand & Description --}}
             <div class="col-lg-4 col-md-6">
                 <h5 class="text-white mb-3">
-                    <i class="bi bi-bag-heart-fill me-2"></i>TokoOnline
+                    <i class="bi bi-bag-heart-fill me-2"></i>TokoPro
                 </h5>
                 <p class="text-secondary">
                     Toko online terpercaya dengan berbagai produk berkualitas.
                     Belanja mudah, aman, dan nyaman.
                 </p>
                 <div class="d-flex gap-3 mt-3">
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="https://wa.me/qr/VAIFPJUHU646E1" class="text-secondary fs-5"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/patkepott?igsh=MTZqbmgwb3FweWp5dQ==" class="text-secondary fs-5"><i class="bi bi-instagram"></i></a>
+                    <a href="https://github.com/Ipatkepot" class="text-secondary fs-5"><i class="bi bi-github"></i></a>
                     <a href="#" class="text-secondary fs-5"><i class="bi bi-youtube"></i></a>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                 </p>
             </div>
             <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                <img src="{{ asset('images/payment-methods.png') }}" alt="Payment Methods" height="30">
+                <i></i>
             </div>
         </div>
     </div>

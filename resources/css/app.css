@@ -1,231 +1,90 @@
-/* ================================================
-   FILE: resources/css/app.css
-   FUNGSI: Entry point untuk semua CSS - Versi Upgrade Modern + Animasi 2025
-   ================================================ */
-
+/*================================================FILE: resources/css/app.css FUNGSI: Entry point untuk semua CSS================================================*/
 /* Import Bootstrap CSS */
+/* Kita import di sini agar ikut ter-compile oleh Vite dan bisa di-minify saat production */
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 /* Import Bootstrap Icons */
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
-
-/* Import AOS (Animate On Scroll) - Tambahkan CDN di HTML: <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"> */
-/* Dan script: <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script> lalu AOS.init(); */
-
 /* ================================================
-   CUSTOM STYLES - Variabel & Animasi Keyframes
+   CUSTOM STYLES - Variabel dan Override
    ================================================ */
 
 :root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
+    /* Warna Brand Toko */
+    --primary-color: #4f46e5;
+    /* Indigo */
     --secondary-color: #10b981;
+    /* Emerald */
     --accent-color: #f59e0b;
-    --success-color: #22c55e;
-    --danger-color: #ef4444;
+    /* Amber */
 
-    --bg-light: #f8fafc;
-    --bg-dark: #0f172a;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --text-light: #94a3b8;
-
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-blur: 12px;
-
-    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Warna Text */
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
 }
 
-/* Keyframes untuk Animasi Custom */
-@keyframes float {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-15px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-    }
-
-    70% {
-        box-shadow: 0 0 0 15px rgba(99, 102, 241, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-    }
-}
-
-@keyframes shine {
-    0% {
-        background-position: -200%;
-    }
-
-    100% {
-        background-position: 200%;
-    }
-}
-
-/* ================================================
-   GLOBAL STYLES + Animasi
-   ================================================ */
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-dark);
-    transition: var(--transition);
-}
-
-/* Fade In Global */
-.fade-in {
-    animation: fadeIn 1.2s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Navbar Sticky + Animation */
-.navbar {
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    transition: var(--transition);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.navbar.scrolled {
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Hero Section dengan Parallax & Float Animation */
-.hero-section {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 10rem 0;
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-content {
-    animation: float 6s ease-in-out infinite;
-}
-
-/* Product Card - Enhanced Hover + Micro Animations */
-.product-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(var(--glass-blur));
-    border-radius: 1.25rem;
-    overflow: hidden;
-    transition: var(--transition);
-    position: relative;
-}
-
-.product-card:hover {
-    transform: translateY(-15px) scale(1.02);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+/* Override Bootstrap Primary */
+.btn-primary {
+    background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
-.product-card:hover img {
-    transform: scale(1.1);
+.warna {
+    color: #2a694a;
 }
 
-.product-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.6s;
-    pointer-events: none;
+.btn-primary:hover {
+    background-color: #29754f;
+    border-color: #29754f;
 }
 
-.product-card:hover::before {
-    left: 100%;
-    animation: shine 1.5s;
+/* ================================================
+   LAYOUT STYLES
+   ================================================ */
+
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
 }
 
-/* Badge Diskon dengan Pulse */
-.badge-discount {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    background: var(--danger-color);
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
+/* Navbar Custom */
+.navbar-brand {
     font-weight: 700;
-    z-index: 10;
-    animation: pulse 2s infinite;
+    font-size: 1.5rem;
 }
 
-/* Button Animations */
-.btn-primary {
-    position: relative;
-    overflow: hidden;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+.hero-gradient {
+    background: #2e9449;
+        background: linear-gradient(-180deg, rgba(46, 148, 73, 1) 0%, rgba(255, 255, 255, 1) 75%);
 }
-
-.btn-primary::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.btn-primary:active::after {
-    width: 300px;
-    height: 300px;
-}
-
-/* AOS Overrides untuk lebih smooth */
-[data-aos] {
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Contoh penggunaan AOS di HTML:
-   <div class="product-card" data-aos="fade-up" data-aos-delay="100">
-   <h2 data-aos="zoom-in">Judul Hero</h2>
-*/
 
 /* Footer */
 footer {
-    background: linear-gradient(to top, var(--bg-dark), #1e293b);
-    color: #e2e8f0;
-}   
+    background-color: #1f2937;
+    color: #fff;
+}
+
+/* Card Produk */
+.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge Diskon */
+.badge-discount {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ef4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

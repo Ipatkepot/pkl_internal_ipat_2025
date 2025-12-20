@@ -81,6 +81,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    
     // ==================== HELPER METHODS ====================
 
     /**
@@ -160,4 +161,6 @@ public function getInitialsAttribute(): string
     // Ambil maksimal 2 huruf pertama saja
     return substr($initials, 0, 2);
 }
+
+
 }

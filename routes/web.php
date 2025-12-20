@@ -13,6 +13,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -100,7 +102,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    Route::resource('categories', CategoryController::class)->except(['show']); // Kategori biasanya tidak butuh show detail page
+
+// Produk
+Route::resource('products', ProductController::class);
+
+
+Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/product/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+
+// Route tambahan untuk AJAX Image Handling (jika diperlukan)
+// ...
 });
+
+
+
 
 
 // ================================================
