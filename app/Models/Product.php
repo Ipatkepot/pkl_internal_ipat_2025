@@ -88,7 +88,8 @@ class Product extends Model
 
     public function wishlistedBy(): HasMany
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
     }
 
     // ==================== ACCESSORS ====================

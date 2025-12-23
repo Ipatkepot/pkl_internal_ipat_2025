@@ -26,7 +26,7 @@
                 </div>
                <div class="col-lg-6 text-center" data-aos="fade-up">
         <img src="
-             {{ asset('images/images.jpg') }}"
+             {{ asset('images/logo.png') }}"
              alt="Ilustrasi Belanja Online"
              class="img-fluid"
              style="max-height: 350px;">

@@ -12,7 +12,7 @@
 
 :root {
     /* Warna Brand Toko */
-    --primary-color: #4f46e5;
+    --primary-color: #289c58;
     /* Indigo */
     --secondary-color: #10b981;
     /* Emerald */
@@ -36,8 +36,8 @@
 }
 
 .btn-primary:hover {
-    background-color: #29754f;
-    border-color: #29754f;
+    background-color: #3dc983;
+    border-color: #3dc983;
 }
 
 /* ================================================
@@ -57,7 +57,7 @@ body {
 
 .hero-gradient {
     background: #2e9449;
-        background: linear-gradient(-180deg, rgba(46, 148, 73, 1) 0%, rgba(255, 255, 255, 1) 75%);
+        background: linear-gradient(-180deg, rgb(34, 112, 55) 0%,rgba(46, 148, 73, 1) 5%, rgba(255, 255, 255, 1) 95%);
 }
 
 /* Footer */

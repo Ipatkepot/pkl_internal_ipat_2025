@@ -130,12 +130,14 @@
 
                     {{-- Wishlist --}}
                     @auth
-                        <button type="button"
-                                onclick="toggleWishlist({{ $product->id }})"
-                                class="btn btn-outline-danger mb-4 wishlist-btn-{{ $product->id }}">
+                   <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger mb-4">
                             <i class="bi {{ auth()->user()->hasInWishlist($product) ? 'bi-heart-fill' : 'bi-heart' }} me-2"></i>
                             {{ auth()->user()->hasInWishlist($product) ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist' }}
                         </button>
+                    </form>
+
                     @endauth
 
                     <hr>
