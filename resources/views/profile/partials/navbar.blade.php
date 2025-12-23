@@ -98,9 +98,9 @@
         {{-- Brand --}}
         <a class="navbar-brand d-flex align-items-center me-4" href="{{ route('home') }}">
             <div class="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: var(--primary-gradient) !important;">
-                <i class="bi bi-lightning-charge-fill"></i>
+                <i class="bi bi-bag-heart-fill"></i>
             </div>
-            <span class="fw-bolder fs-4 mb-0 tracking-tighter">TOKO<span class="warna">PRO</span></span>
+            <span class="fw-bolder fs-4 mb-0 tracking-tighter">Gadget<span class="warna">Murah</span></span>
         </a>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">

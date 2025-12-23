@@ -50,7 +50,12 @@
                             <input type="number" name="stock" class="form-control" value="{{ old('stock') }}">
                         </div>
                     </div>
-
+                    {{-- Deskripsi --}}
+                    <div class="form-group">
+                        <label for="weight">Berat (gram)</label> <!-- atau satuan lain, sesuaikan -->
+                        <input type="number" name="weight" id="weight" class="form-control" value="{{ old('weight') }}" required>
+                        <small class="text-muted">Berat produk dalam gram, wajib diisi untuk ongkir</small>
+                    </div>
                     {{-- Gambar --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Upload Gambar</label>

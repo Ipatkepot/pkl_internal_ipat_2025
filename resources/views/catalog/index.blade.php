@@ -1,5 +1,12 @@
 @extends('layouts.app')
-
+<style>
+    .pagination{
+        font-size: 14px;
+    }
+    .page-link{
+        padding: 4px 12px;
+    }
+</style>
 @section('content')
 <div class="container py-5">
     <div class="row">
@@ -71,8 +78,8 @@
                 @endforelse
             </div>
 
-            <div class="mt-4">
-                {{ $products->links() }}
+            <div class="mt-4 justify-content-center mt-5">
+                {{ $products->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
