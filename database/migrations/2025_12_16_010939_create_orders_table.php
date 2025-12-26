@@ -11,49 +11,32 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('user_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            // Nomor order unik (contoh: ORD-20241210-ABC123)
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('order_number', 50)->unique();
-
-            // Total harga (termasuk ongkir)
             $table->decimal('total_amount', 15, 2);
-
-            // Ongkos kirim
             $table->decimal('shipping_cost', 12, 2)->default(0);
 
-            // Status pesanan
+            // Status utama pesanan
             $table->enum('status', [
-                'pending',    // Menunggu pembayaran
-                'processing', // Pembayaran diterima, sedang diproses
-                'shipped',    // Sudah dikirim
-                'delivered',  // Sudah diterima
-                'cancelled',  // Dibatalkan
+                'pending', 'processing', 'shipped', 'delivered', 'cancelled',
             ])->default('pending');
 
-            // Alamat pengiriman (snapshot saat order)
+            // Status pembayaran (yang tadi dicari OrderService)
+            $table->string('payment_status')->default('unpaid');
+
+            // Data pengiriman (Cukup tulis satu kali saja)
             $table->string('shipping_name');
             $table->string('shipping_phone', 20);
             $table->text('shipping_address');
 
-            // Metode pembayaran
             $table->string('payment_method')->nullable();
-
-            // Catatan dari pembeli
             $table->text('notes')->nullable();
-
             $table->timestamps();
 
-            // Index untuk query
+            // Indexing
             $table->index('order_number');
-            $table->index('status');
-            $table->index('created_at');
         });
     }
-
     public function down(): void
     {
         Schema::dropIfExists('orders');
