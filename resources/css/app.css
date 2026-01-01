@@ -1,127 +1,110 @@
-/*================================================FILE: resources/css/app.css FUNGSI: Entry point untuk semua CSS================================================*/
-/* Import Bootstrap CSS */
-/* Kita import di sini agar ikut ter-compile oleh Vite dan bisa di-minify saat production */
-@import "bootstrap/dist/css/bootstrap.min.css";
+/* ================================================
+   FILE: resources/css/app.css
+   FUNGSI: Entry point CSS dengan tema Biru Steel (#3B6181)
+   ================================================ */
 
-/* Import Bootstrap Icons */
+/* Import Bootstrap & Icons */
+@import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* ================================================
-   CUSTOM STYLES - Variabel dan Override
+   CUSTOM STYLES - Blue Theme Variables
    ================================================ */
 
 :root {
-    /* Warna Brand Toko */
-    --primary-color: #289c58;
-    /* Indigo */
-    --secondary-color: #10b981;
-    /* Emerald */
-    --accent-color: #f59e0b;
-    /* Amber */
+  /* Warna Brand Baru */
+  --primary-color: #3B6181;    /* Biru Steel Utama */
+  --primary-hover: #2d4a63;   /* Biru Lebih Gelap (Hover) */
+  --secondary-color: #ff5722; /* Tetap Orange untuk aksen kontras */
+  
+  /* Background & Border */
+  --bg-light: #f0f3f7;
+  --border-color: #e5e7eb;
 
-    /* Warna Text */
-    --text-dark: #1f2937;
-    --text-muted: #6b7280;
-    --text-light: #9ca3af;
-}
-
-/* Override Bootstrap Primary */
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.warna {
-    color: #2a694a;
-}
-
-.btn-primary:hover {
-    background-color: #3dc983;
-    border-color: #3dc983;
+  /* Warna Text */
+  --text-dark: #31353b;       
+  --text-muted: #6d7588;      
+  --text-light: #9fa6b0;
 }
 
 /* ================================================
-   LAYOUT STYLES
+   GLOBAL OVERRIDES
    ================================================ */
 
 body {
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
-    color: var(--text-dark);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  color: var(--text-dark);
+  background-color: var(--bg-light);
 }
 
-/* Navbar Custom */
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
+/* Button Primary Override */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.hero-gradient {
-    background: #2e9449;
-        background: linear-gradient(-180deg, rgb(34, 112, 55) 0%,rgba(46, 148, 73, 1) 5%, rgba(255, 255, 255, 1) 95%);
+.btn-primary:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  transform: translateY(-1px);
 }
 
-/* Footer */
-footer {
-    background-color: #1f2937;
-    color: #fff;
+/* Text Success (Ganti ke warna primary biru) */
+.text-success {
+  color: var(--primary-color) !important;
 }
 
-/* Card Produk */
+/* ================================================
+   COMPONENT STYLES
+   ================================================ */
+
+/* Card Produk Modern */
 .product-card {
-    transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  background: #fff;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(49, 53, 59, 0.12);
 }
 
-/* Badge Diskon */
+/* Badge Diskon (Opsional: jika ingin senada dengan biru, ganti backgroundnya) */
 .badge-discount {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #ef4444;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #e8eff5; /* Biru sangat muda */
+  color: var(--primary-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  z-index: 10;
+}
+
+/* Hero Section / Banner */
+.hero-gradient {
+    /* Gradasi Biru yang Elegan */
+    background: linear-gradient(135deg, #3B6181 0%, #5a8bb5 100%) !important;
+    border-bottom: none;
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
 }
 
-/* Pastikan tombol carousel terlihat di atas gambar */
-.carousel-control-prev,
-.carousel-control-next {
-    width: 15%;
-    z-index: 10;
-    /* Lebih tinggi dari gambar dan badge */
-    opacity: 0.8;
+/* Input Focus */
+.form-control:focus {
+  border-color: var(--primary-color);
+  /* Shadow disesuaikan dengan warna biru #3B6181 dalam format RGBA */
+  box-shadow: 0 0 0 0.25rem rgba(59, 97, 129, 0.15);
 }
 
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-    opacity: 1;
-}
-
-/* Ikon panah lebih besar dan jelas */
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    width: 40px;
-    height: 40px;
-    background-size: 100%, 100%;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Indicator dots lebih jelas */
-.carousel-indicators {
-    bottom: 10px;
-    z-index: 10;
-}
-
-.carousel-indicators button {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.8);
+/* Footer modern hover */
+footer a:hover {
+  color: var(--primary-color);
 }

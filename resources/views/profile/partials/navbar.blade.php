@@ -1,225 +1,105 @@
-<style>
-    :root {
-        --nav-height: 75px;
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --primary-color: #0d6efd;
-        --text-dark: #212529;
-    }
+{{-- ================================================
+     FILE: resources/views/partials/navbar.blade.php
+     FUNGSI: Navbar Style Modern + Biru Steel Theme
+     ================================================ --}}
 
-    .navbar-custom {
-        height: var(--nav-height);
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        z-index: 1030;
-    }
+<nav class="navbar navbar-expand-lg bg-white sticky-top tokopedia-navbar py-2 border-bottom">
+    <div class="container-fluid px-lg-5 px-3 align-items-center">
 
-    .navbar-hidden {
-        transform: translateY(-100%);
-    }
-
-    /* Logo */
-    .logo-img {
-        height: 48px;
-        width: auto;
-        object-fit: contain;
-    }
-
-    .logo-text {
-        font-size: 1.75rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-
-    .logo-accent {
-        color: var(--primary-color);
-    }
-
-    /* Search Bar */
-    .search-form {
-        max-width: 500px;
-        width: 100%;
-        position: relative;
-    }
-
-    .search-input {
-        padding: 0.75rem 1rem 0.75rem 3rem;
-        border-radius: 50px;
-        border: 1px solid #e9ecef;
-        background: #f8f9fa;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-    }
-
-    .search-input:focus {
-        background: #fff;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        pointer-events: none;
-        font-size: 1.1rem;
-    }
-
-    /* Icon Buttons */
-    .nav-icon-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-dark);
-        transition: all 0.25s ease;
-        position: relative;
-    }
-
-    .nav-icon-btn:hover {
-        background: rgba(13, 110, 253, 0.1);
-        color: var(--primary-color);
-        transform: translateY(-3px);
-    }
-
-    .badge-counter {
-        font-size: 0.65rem;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 5px;
-    }
-
-    /* Profile Dropdown */
-    .profile-avatar {
-        width: 38px;
-        height: 38px;
-        object-fit: cover;
-        border: 2px solid transparent;
-        transition: all 0.3s;
-    }
-
-    .profile-btn:hover .profile-avatar {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 15px rgba(13, 110, 253, 0.25);
-    }
-
-    .dropdown-menu-custom {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        min-width: 240px;
-        padding: 0.75rem 0;
-        margin-top: 12px;
-    }
-
-    .dropdown-item-custom {
-        border-radius: 10px;
-        padding: 0.65rem 1.25rem;
-        margin: 0 0.5rem;
-        transition: all 0.2s;
-    }
-
-    .dropdown-item-custom:hover {
-        background: rgba(13, 110, 253, 0.08);
-    }
-</style>
-
-<nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top shadow-sm" id="mainNavbar">
-    <div class="container">
-        {{-- Logo & Brand --}}
-        <a class="navbar-brand d-flex align-items-center gap-3 me-5" href="{{ route('home') }}">
-            <img src="{{ asset('images/logo.png') }}" alt="GadgetMurah Logo" class="logo-img">
-            <span class="logo-text">Gadget<span class="logo-accent">Murah</span></span>
+        {{-- BRAND --}}
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ route('home') }}" style="color: #3B6181;">
+            <img src="{{ asset('images/logo.png') }}" alt="Gadget Murahh Logo" width="36" height="36">
+            <span class="fs-4 d-none d-sm-inline" style="letter-spacing: -1px;">Gadget Murahh</span>
         </a>
 
-        {{-- Toggler untuk Mobile --}}
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <i class="bi bi-list fs-3"></i>
+        {{-- KATEGORI --}}
+        <button class="btn btn-light border ms-2 d-none d-lg-flex align-items-center gap-2 category-btn" style="border-radius: 8px;">
+            <i class="bi bi-grid-fill" style="color: #3B6181;"></i>
+            <span class="fw-medium">Kategori</span>
         </button>
 
-        {{-- Navbar Content --}}
-        <div class="collapse navbar-collapse" id="navbarContent">
-            {{-- Search Form (Centered) --}}
-            <form class="mx-auto my-3 my-lg-0 search-form" action="{{ route('catalog.index') }}" method="GET">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text"
-                       name="q"
-                       class="form-control search-input"
-                       placeholder="Cari gadget impianmu..."
-                       value="{{ request('q') }}"
-                       autocomplete="off">
+        {{-- NAVBAR CONTENT --}}
+        <div class="collapse navbar-collapse" id="navbarMain">
+            {{-- SEARCH BAR --}}
+            <form class="mx-lg-4 my-3 my-lg-0 flex-grow-1" action="{{ route('catalog.index') }}" method="GET">
+                <div class="input-group search-box" style="border-radius: 8px; overflow: hidden;">
+                    <span class="input-group-text bg-white border-end-0 pe-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0 py-2 shadow-none" 
+                           placeholder="Cari barang impianmu di sini..." value="{{ request('q') }}">
+                </div>
             </form>
 
-            {{-- Right Menu --}}
-            <ul class="navbar-nav align-items-center gap-2">
-                {{-- Explore Link --}}
-                <li class="nav-item d-none d-lg-block">
-                    <a class="nav-link fw-semibold px-3" href="{{ route('catalog.index') }}">Jelajah</a>
-                </li>
-
+            {{-- RIGHT MENU --}}
+            <ul class="navbar-nav align-items-center gap-3 ms-lg-auto">
+                
                 @auth
-                    {{-- Wishlist --}}
-                      <li class="nav-item position-relative">
-                        <a class="nav-link icon-link" href="{{ route('wishlist.index') }}">
-                            <i class="bi bi-heart fs-4"></i>
-                            @if(auth()->user()->wishlistProducts()->count() > 0)
-                                <span class="badge-modern badge-wishlist">{{ auth()->user()->wishlistProducts()->count() }}</span>
+                    {{-- WISHLIST --}}
+                    <li class="nav-item">
+                        <a class="nav-link position-relative px-2" href="{{ route('wishlist.index') }}">
+                            <i class="bi bi-heart fs-5 text-dark"></i>
+                            @php $wishlistCount = auth()->user()->wishlists()->count(); @endphp
+                            @if($wishlistCount > 0)
+                                <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle" style="font-size: 10px; border: 2px solid white;">
+                                    {{ $wishlistCount }}
+                                </span>
                             @endif
                         </a>
                     </li>
 
-                    {{-- Cart --}}
+                    {{-- KERANJANG --}}
                     <li class="nav-item">
-                        <a href="{{ route('cart.index') }}" class="nav-icon-btn">
-                            <i class="bi bi-bag fs-5"></i>
-                            @php $cartCount = auth()->user()->cart?->items()->count() ?? 0; @endphp
+                        <a class="nav-link position-relative px-2" href="{{ route('cart.index') }}">
+                            <i class="bi bi-cart3 fs-5 text-dark"></i>
+                            @php 
+                                $cartCount = auth()->user()->cart?->items()->count() ?? 0; 
+                            @endphp
                             @if($cartCount > 0)
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary badge-counter">
+                                <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle" style="font-size: 10px; border: 2px solid white;">
                                     {{ $cartCount }}
                                 </span>
                             @endif
                         </a>
                     </li>
 
-                    {{-- Profile Dropdown --}}
-                    <li class="nav-item dropdown ms-3">
-                        <a class="dropdown-toggle d-flex align-items-center gap-2 profile-btn" 
-                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ auth()->user()->avatar_url }}" alt="Profile" class="rounded-circle profile-avatar">
-                            <i class="bi bi-chevron-down fs-6"></i>
+                    <div class="vr d-none d-lg-block mx-1" style="height: 24px; opacity: 0.1;"></div>
+
+                    {{-- USER PROFILE DROPDOWN --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-0 shadow-none" data-bs-toggle="dropdown" role="button">
+                            {{-- Avatar Background diubah ke 3B6181 --}}
+                            <img src="{{ auth()->user()->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&background=3B6181&color=fff' }}" 
+                                 class="rounded-circle border" width="32" height="32">
+                            <span class="fw-bold text-dark d-none d-xl-inline" style="font-size: 14px;">{{ Str::words(auth()->user()->name, 1, '') }}</span>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-3 rounded-4 p-2" style="min-width: 220px;">
+                            <div class="px-3 py-2 border-bottom mb-2">
+                                <p class="mb-0 fw-bold small text-dark">{{ auth()->user()->name }}</p>
+                                <p class="mb-0 text-muted" style="font-size: 11px;">{{ auth()->user()->email }}</p>
+                            </div>
 
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
-                            <li class="px-4 py-3 border-bottom">
-                                <div class="fw-bold">{{ auth()->user()->name }}</div>
-                                <small class="text-muted">{{ auth()->user()->email }}</small>
+                            {{-- MENU KHUSUS ADMIN --}}
+                            @if(auth()->user()->role === 'admin' || auth()->user()->is_admin)
+                            <li>
+                                <a class="dropdown-item py-2 rounded-3 text-admin-link fw-bold mb-1" href="{{ url('/admin/dashboard') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Admin Panel
+                                </a>
                             </li>
-
-                            <li><a class="dropdown-item dropdown-item-custom" href="{{ route('profile.edit') }}">
-                                <i class="bi bi-person me-2"></i> Pengaturan Akun
-                            </a></li>
-                            <li><a class="dropdown-item dropdown-item-custom" href="{{ route('orders.index') }}">
-                                <i class="bi bi-truck me-2"></i> Pesanan Saya
-                            </a></li>
-
-                            @if(auth()->user()->isAdmin())
-                                <li><hr class="dropdown-divider mx-3"></li>
-                                <li><a class="dropdown-item dropdown-item-custom text-primary fw-semibold" href="{{ route('admin.dashboard') }}">
-                                    <i class="bi bi-shield-lock me-2"></i> Dashboard Admin
-                                </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             @endif
 
-                            <li><hr class="dropdown-divider mx-3"></li>
+                            {{-- MENU USER BIASA --}}
+                            <li><a class="dropdown-item py-2 rounded-3" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2 text-muted"></i> Profil Saya</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" href="{{ route('orders.index') }}"><i class="bi bi-bag-check me-2 text-muted"></i> Pesanan</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" href="{{ route('wishlist.index') }}"><i class="bi bi-heart me-2 text-muted"></i> Wishlist</a></li>
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            
                             <li>
-                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item dropdown-item-custom text-danger">
+                                    <button class="dropdown-item text-danger py-2 rounded-3 fw-medium w-100 text-start">
                                         <i class="bi bi-box-arrow-right me-2"></i> Keluar
                                     </button>
                                 </form>
@@ -227,11 +107,18 @@
                         </ul>
                     </li>
                 @else
+                    {{-- TOMBOL GUEST - Diupdate ke Biru Steel --}}
                     <li class="nav-item">
-                        <a href="{{ route('login') }}" class="btn btn-outline-primary px-4 fw-semibold">Masuk</a>
+                        <a class="btn btn-outline-primary fw-bold px-4 btn-sm" href="{{ route('login') }}" 
+                           style="border-radius: 8px; border-color: #3B6181; color: #3B6181;">
+                            Masuk
+                        </a>
                     </li>
-                    <li class="nav-item ms-2">
-                        <a href="{{ route('register') }}" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">Daftar</a>
+                    <li class="nav-item">
+                        <a class="btn btn-primary fw-bold px-4 btn-sm" href="{{ route('register') }}" 
+                           style="border-radius: 8px; background-color: #3B6181; border: none;">
+                            Daftar
+                        </a>
                     </li>
                 @endauth
             </ul>
@@ -239,25 +126,46 @@
     </div>
 </nav>
 
-{{-- Auto Hide Navbar on Scroll --}}
-<script>
-    let lastScroll = 0;
-    const navbar = document.getElementById('mainNavbar');
+<style>
+    /* Styling Hover Dropdown Item */
+    .dropdown-item {
+        transition: all 0.2s ease;
+        font-size: 14px;
+        color: #31353b;
+    }
 
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.scrollY;           
+    .dropdown-item:hover {
+        background-color: #f0f3f7;
+        color: #3B6181; /* Biru Steel */
+    }
 
-        if (currentScroll <= 0) {
-            navbar.classList.remove('navbar-hidden');
-            return;
-        }
+    /* Admin Link khusus */
+    .text-admin-link {
+        color: #3B6181 !important;
+    }
+    
+    .dropdown-item.text-admin-link:hover {
+        background-color: #e8eff5 !important;
+    }
 
-        if (currentScroll > lastScroll) {
-            navbar.classList.add('navbar-hidden');
-        } else {
-            navbar.classList.remove('navbar-hidden');
-        }
+    .dropdown-item.text-danger:hover {
+        background-color: #fff5f5;
+        color: #dc3545 !important;
+    }
 
-        lastScroll = currentScroll;
-    });
-</script>
+    /* Menghilangkan panah dropdown default */
+    .navbar-nav .dropdown-toggle::after {
+        display: none;
+    }
+
+    .dropdown-menu {
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Search Box Focus */
+    .search-box:focus-within {
+        border: 1px solid #3B6181;
+    }
+</style>

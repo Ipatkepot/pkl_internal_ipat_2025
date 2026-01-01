@@ -1,128 +1,188 @@
-{{-- ================================================
-     FILE: resources/views/cart/index.blade.php
-     FUNGSI: Halaman keranjang belanja
-     ================================================ --}}
-
 @extends('layouts.app')
 
 @section('title', 'Keranjang Belanja')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">
-        <i class="bi bi-cart3 me-2"></i>Keranjang Belanja
-    </h2>
+<style>
+    body { background-color: #f0f3f7; }
+    .cart-card { border-radius: 12px; border: none; }
+    .table thead th { 
+        background-color: #f8f9fa; 
+        font-size: 13px; 
+        color: #6d7588; 
+        border-bottom: 1px solid #eee;
+    }
+    .product-name { 
+        font-size: 14px; 
+        font-weight: 700; 
+        color: #31353b; 
+        transition: color 0.2s;
+    }
+    /* Warna Hover diubah ke Biru Steel */
+    .product-name:hover { color: #3B6181; }
+
+    .quantity-input { 
+        max-width: 70px; 
+        border-radius: 8px; 
+        text-align: center; 
+        font-weight: 600;
+    }
+
+    .summary-card { 
+        border-radius: 12px; 
+        border: none; 
+        position: sticky; 
+        top: 20px;
+    }
+
+    /* Tombol Checkout diubah ke Biru Steel */
+    .btn-checkout { 
+        background-color: #3B6181; 
+        border: none; 
+        font-weight: 700; 
+        padding: 12px;
+        border-radius: 10px;
+        color: white;
+    }
+    .btn-checkout:hover { 
+        background-color: #2d4a63; 
+        color: white;
+    }
+
+    /* Warna teks sukses (Diskon) diubah ke Biru Steel */
+    .text-success-custom {
+        color: #3B6181 !important;
+    }
+
+    .trash-icon { color: #9fa6b0; cursor: pointer; transition: 0.2s; }
+    .trash-icon:hover { color: #ff5c84; }
+
+    /* Fokus Input Jumlah */
+    .quantity-input:focus {
+        border-color: #3B6181;
+        box-shadow: 0 0 0 0.2rem rgba(59, 97, 129, 0.15);
+    }
+</style>
+
+<div class="container py-5">
+    <h4 class="fw-bold mb-4">Keranjang Belanja</h4>
 
     @if($cart && $cart->items->count())
-        <div class="row">
-            {{-- Cart Items --}}
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm">
+        <div class="row g-4">
+            {{-- DAFTAR ITEM --}}
+            <div class="col-lg-8">
+                <div class="card cart-card shadow-sm">
                     <div class="card-body p-0">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width: 50%">Produk</th>
-                                    <th class="text-center">Harga</th>
-                                    <th class="text-center">Jumlah</th>
-                                    <th class="text-end">Subtotal</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($cart->items as $item)
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ $item->product->image_url }}"
-                                                     class="rounded me-3"
-                                                     width="60" height="60"
-                                                     style="object-fit: cover;">
-                                                <div>
-                                                    <a href="{{ route('catalog.show', $item->product->slug) }}"
-                                                       class="text-decoration-none text-dark fw-medium">
-                                                        {{ Str::limit($item->product->name, 40) }}
-                                                    </a>
-                                                    <div class="small text-muted">
-                                                        {{ $item->product->category->name }}
+                                        <th class="ps-4 py-3">Produk</th>
+                                        <th class="text-center">Harga</th>
+                                        <th class="text-center">Jumlah</th>
+                                        <th class="text-end pe-4">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($cart->items as $item)
+                                        @php
+                                            $itemPrice = $item->product->price; 
+                                            $itemSubtotal = $itemPrice * $item->quantity;
+                                        @endphp
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center py-2">
+                                                    <img src="{{ $item->product->image_url }}" 
+                                                         class="rounded-3 me-3" width="70" height="70" 
+                                                         style="object-fit: cover; border: 1px solid #eee;">
+                                                    <div>
+                                                        <a href="{{ route('catalog.show', $item->product->slug) }}" class="product-name text-decoration-none d-block mb-1">
+                                                            {{ Str::limit($item->product->name, 50) }}
+                                                        </a>
+                                                        <span class="text-muted small">Stok: {{ $item->product->stock }}</span>
+                                                        <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="mt-1">
+                                                            @csrf @method('DELETE')
+                                                            <button type="submit" class="btn p-0 border-0 small text-danger trash-icon" style="font-size: 12px;" onclick="return confirm('Hapus barang ini?')">
+                                                                Hapus
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            {{ $item->product->formatted_price }}
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            <form action="{{ route('cart.update', $item->id) }}" method="POST"
-                                                  class="d-inline-flex align-items-center">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="number" name="quantity"
-                                                       value="{{ $item->quantity }}"
-                                                       min="1" max="{{ $item->product->stock }}"
-                                                       class="form-control form-control-sm text-center"
-                                                       style="width: 70px;"
-                                                       onchange="this.form.submit()">
-                                            </form>
-                                        </td>
-                                        <td class="text-end align-middle fw-bold">
-                                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                                        </td>
-                                        <td class="align-middle">
-                                            <form action="{{ route('cart.remove', $item->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Hapus item ini?')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                            </td>
+                                            <td class="text-center fw-semibold">
+                                                Rp {{ number_format($itemPrice, 0, ',', '.') }}
+                                            </td>
+                                            <td class="text-center">
+                                                <form action="{{ route('cart.update', $item->id) }}" method="POST" class="d-flex justify-content-center">
+                                                    @csrf @method('PATCH')
+                                                    <input type="number" name="quantity" value="{{ $item->quantity }}" 
+                                                           min="1" max="{{ $item->product->stock }}" 
+                                                           class="form-control form-control-sm quantity-input shadow-sm"
+                                                           onchange="this.form.submit()">
+                                                </form>
+                                            </td>
+                                            <td class="text-end pe-4 fw-bold text-dark">
+                                                Rp {{ number_format($itemSubtotal, 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Order Summary --}}
+            {{-- RINGKASAN --}}
             <div class="col-lg-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Ringkasan Belanja</h5>
-                    </div>
-                    <div class="card-body">
+                <div class="card summary-card shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Ringkasan Belanja</h6>
+                        
+                        @php
+                            $totalQuantity = $cart->items->sum('quantity');
+                            $totalHarga = $cart->items->sum(function($item) {
+                                return $item->product->price * $item->quantity;
+                            });
+                        @endphp
+
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Total Harga ({{ $cart->items->sum('quantity') }} barang)</span>
-                            <span>Rp {{ number_format($cart->items->sum('subtotal'), 0, ',', '.') }}</span>
+                            <span class="text-muted">Total Harga ({{ $totalQuantity }} barang)</span>
+                            <span class="text-dark">Rp {{ number_format($totalHarga, 0, ',', '.') }}</span>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="fw-bold">Total</span>
-                            <span class="fw-bold text-primary fs-5">
-                                Rp {{ number_format($cart->items->sum('subtotal'), 0, ',', '.') }}
-                            </span>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Diskon</span>
+                            <span class="text-success-custom">- Rp 0</span>
                         </div>
-                        <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 btn-lg">
-                            <i class="bi bi-credit-card me-2"></i>Checkout
+                        <hr class="my-3" style="border-style: dashed;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fw-bold fs-5">Total Harga</span>
+                            <span class="fw-bold fs-5 text-dark">Rp {{ number_format($totalHarga, 0, ',', '.') }}</span>
+                        </div>
+
+                        {{-- Tombol Beli Utama --}}
+                        <a href="{{ route('checkout.index') }}" class="btn btn-checkout w-100 mb-2">
+                            Beli ({{ $totalQuantity }})
                         </a>
-                        <a href="{{ route('catalog.index') }}" class="btn btn-outline-secondary w-100 mt-2">
-                            <i class="bi bi-arrow-left me-2"></i>Lanjut Belanja
+                        <a href="{{ route('catalog.index') }}" class="btn btn-outline-secondary w-100 border-0 fw-bold small">
+                            Kembali Belanja
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     @else
-        {{-- Empty Cart --}}
-        <div class="text-center py-5">
-            <i class="bi bi-cart-x display-1 text-muted"></i>
-            <h4 class="mt-3">Keranjang Kosong</h4>
-            <p class="text-muted">Belum ada produk di keranjang belanja kamu</p>
-            <a href="{{ route('catalog.index') }}" class="btn btn-primary">
-                <i class="bi bi-bag me-2"></i>Mulai Belanja
-            </a>
+        {{-- TAMPILAN KERANJANG KOSONG --}}
+        <div class="card cart-card shadow-sm py-5">
+            <div class="card-body text-center">
+                <img src="images/logo2.png" width="100" class="mb-4 opacity-75">
+                <h5 class="fw-bold">Wah, keranjang belanjamu kosong</h5>
+                <p class="text-muted">Yuk, isi dengan barang-barang impianmu!</p>
+                {{-- Tombol Mulai Belanja diubah ke Biru Steel --}}
+                <a href="{{ route('catalog.index') }}" class="btn px-5 fw-bold" style="background-color: #3B6181; color: white; border:none; border-radius: 10px;">
+                    Mulai Belanja
+                </a>
+            </div>
         </div>
     @endif
 </div>
