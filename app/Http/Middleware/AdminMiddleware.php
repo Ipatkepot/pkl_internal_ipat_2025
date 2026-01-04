@@ -8,7 +8,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // Tambahkan import untuk konsistensi
 use Symfony\Component\HttpFoundation\Response;
+
 
 class AdminMiddleware
 {
@@ -26,9 +28,12 @@ class AdminMiddleware
         // ================================================
         // STEP 1: Cek apakah user sudah login
         // ================================================
-        if (! auth()->check()) {
-            // auth()->check() = return true jika sudah login, false jika belum
-            // !auth()->check() = NOT login = belum login
+        if (!Auth::check()) {
+            // Auth::check() = return true jika sudah login, false jika belum
+            // !Auth::check() = NOT login = belum login
+
+            // Tambahkan logging untuk debug
+            logger()->info('AdminMiddleware: User not authenticated, redirecting to login.');
 
             return redirect()->route('login');
             // ↑ Redirect ke halaman login
@@ -37,10 +42,15 @@ class AdminMiddleware
         // ================================================
         // STEP 2: Cek apakah user adalah admin
         // ================================================
-        if (auth()->user()->role !== 'admin') {
-            // auth()->user()        = Ambil data user yang login
-            // auth()->user()->role  = Ambil nilai kolom 'role'
-            // !== 'admin'           = Bukan admin
+        $user = Auth::user();
+        if (!$user || $user->role !== 'admin') {
+            // Auth::user()         = Ambil data user yang login
+            // $user->role          = Ambil nilai kolom 'role'
+            // !== 'admin'          = Bukan admin
+            // Tambahkan pengecekan null untuk safety
+
+            // Tambahkan logging untuk debug
+            logger()->warning('AdminMiddleware: Access denied for user ID ' . ($user ? $user->id : 'null') . ' with role ' . ($user ? $user->role : 'null'));
 
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
             // ↑ abort(403) = Tampilkan halaman error 403 (Forbidden)
