@@ -19,7 +19,8 @@ class OrderController extends Controller
                 return $query->where('status', $status);
             })
             ->when($request->search, function ($query, $search) {
-                return $query->where('invoice_number', 'like', "%{$search}%")
+                // Gunakan order_number karena di model kamu kolomnya adalah order_number
+                return $query->where('order_number', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
@@ -27,7 +28,7 @@ class OrderController extends Controller
             })
             ->latest()
             ->paginate(15)
-            ->withQueryString(); // agar filter & search tetap saat pindah halaman
+            ->withQueryString();
 
         return view('admin.orders.index', compact('orders'));
     }
@@ -37,13 +38,12 @@ class OrderController extends Controller
      */
     public function show(Order $order): View
     {
-        // Load semua relasi yang dibutuhkan
+        // PERBAIKAN: Hapus 'shipping' dan 'address' karena relasi tersebut tidak ada di model Order
+        // Data pengiriman sudah otomatis terbawa karena ada di tabel orders itu sendiri
         $order->load([
             'user',
             'items.product',
             'payment',
-            'shipping',
-            'address', // jika ada relasi alamat
         ]);
 
         return view('admin.orders.show', compact('order'));
@@ -62,13 +62,11 @@ class OrderController extends Controller
             'status' => $request->status,
         ]);
 
-        // Opsional: kirim notifikasi ke user, update stok, dll
-
         return back()->with('success', 'Status pesanan berhasil diupdate menjadi "' . ucfirst($request->status) . '"');
     }
 
     /**
-     * (Opsional) Update resi pengiriman
+     * Update resi pengiriman
      */
     public function updateTracking(Request $request, Order $order): RedirectResponse
     {
@@ -77,7 +75,7 @@ class OrderController extends Controller
             'courier'         => 'nullable|string|max:50',
         ]);
 
-        // Asumsi kamu punya kolom tracking_number & courier di tabel orders atau shipping
+        // Pastikan kolom ini ada di migration kamu, jika tidak ada silakan tambahkan via migration
         $order->update([
             'tracking_number' => $request->tracking_number,
             'courier'         => $request->courier,
@@ -86,4 +84,3 @@ class OrderController extends Controller
         return back()->with('success', 'Nomor resi berhasil disimpan!');
     }
 }
-    

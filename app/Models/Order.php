@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+// Tambahkan ini
 
 class Order extends Model
 {
@@ -51,5 +53,15 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Relasi ke Payment (pembayaran)
+     * Ini fungsi yang dicari Laravel saat kamu memanggil $order->payment
+     */
+    public function payment(): HasOne
+    {
+        // Pastikan kamu punya model bernama Payment
+        return $this->hasOne(Payment::class);
     }
 }
