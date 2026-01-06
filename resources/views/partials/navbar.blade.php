@@ -8,15 +8,31 @@
 
         {{-- BRAND --}}
         <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ route('home') }}" style="color: #3B6181;">
-            <img src="{{ asset('images/logo.png') }}" alt="Gadget Murahh Logo" width="36" height="36">
-            <span class="fs-4 d-none d-sm-inline" style="letter-spacing: -1px;">Gadget Murahh</span>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" width="36" height="36">
+            <span class="fs-4 d-none d-sm-inline" style="letter-spacing: -1px;">Gadget Mahall</span>
         </a>
 
-        {{-- KATEGORI --}}
-        <button class="btn btn-light border ms-2 d-none d-lg-flex align-items-center gap-2 category-btn" style="border-radius: 8px;">
-            <i class="bi bi-grid-fill" style="color: #3B6181;"></i>
-            <span class="fw-medium">Kategori</span>
-        </button>
+        {{-- KATEGORI (FIXED: Sekarang bisa diklik) --}}
+        <div class="dropdown ms-2 d-none d-lg-block">
+            <button class="btn btn-light border d-flex align-items-center gap-2 category-btn shadow-none" 
+                    type="button" 
+                    id="dropdownCategory" 
+                    data-bs-toggle="dropdown" 
+                    aria-expanded="false" 
+                    style="border-radius: 8px;">
+                <i class="bi bi-grid-fill" style="color: #3B6181;"></i>
+                <span class="fw-medium">Kategori</span>
+            </button>
+            <ul class="dropdown-menu border-0 shadow-lg mt-3 rounded-4 p-2" aria-labelledby="dropdownCategory" style="min-width: 220px;">
+                <li><h6 class="dropdown-header text-dark fw-bold">Kategori Populer</h6></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'smartphone']) }}">Smartphone</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'laptop']) }}">Laptop & PC</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'tablet']) }}">Tablet</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'audio']) }}">Audio & Wearable</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2 rounded-3 fw-medium text-center" href="{{ route('catalog.index') }}" style="color: #3B6181;">Lihat Semua Kategori</a></li>
+            </ul>
+        </div>
 
         {{-- NAVBAR CONTENT --}}
         <div class="collapse navbar-collapse" id="navbarMain">
@@ -68,7 +84,6 @@
                     {{-- USER PROFILE DROPDOWN --}}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-0 shadow-none" data-bs-toggle="dropdown" role="button">
-                            {{-- Avatar Background diubah ke 3B6181 --}}
                             <img src="{{ auth()->user()->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&background=3B6181&color=fff' }}" 
                                  class="rounded-circle border" width="32" height="32">
                             <span class="fw-bold text-dark d-none d-xl-inline" style="font-size: 14px;">{{ Str::words(auth()->user()->name, 1, '') }}</span>
@@ -79,7 +94,6 @@
                                 <p class="mb-0 text-muted" style="font-size: 11px;">{{ auth()->user()->email }}</p>
                             </div>
 
-                            {{-- MENU KHUSUS ADMIN --}}
                             @if(auth()->user()->role === 'admin' || auth()->user()->is_admin)
                             <li>
                                 <a class="dropdown-item py-2 rounded-3 text-admin-link fw-bold mb-1" href="{{ url('/admin/dashboard') }}">
@@ -89,7 +103,6 @@
                             <li><hr class="dropdown-divider"></li>
                             @endif
 
-                            {{-- MENU USER BIASA --}}
                             <li><a class="dropdown-item py-2 rounded-3" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2 text-muted"></i> Profil Saya</a></li>
                             <li><a class="dropdown-item py-2 rounded-3" href="{{ route('orders.index') }}"><i class="bi bi-bag-check me-2 text-muted"></i> Pesanan</a></li>
                             <li><a class="dropdown-item py-2 rounded-3" href="{{ route('wishlist.index') }}"><i class="bi bi-heart me-2 text-muted"></i> Wishlist</a></li>
@@ -107,7 +120,6 @@
                         </ul>
                     </li>
                 @else
-                    {{-- TOMBOL GUEST - Diupdate ke Biru Steel --}}
                     <li class="nav-item">
                         <a class="btn btn-outline-primary fw-bold px-4 btn-sm" href="{{ route('login') }}" 
                            style="border-radius: 8px; border-color: #3B6181; color: #3B6181;">
@@ -127,7 +139,7 @@
 </nav>
 
 <style>
-    /* Styling Hover Dropdown Item */
+    /* Styling Global Dropdown Item */
     .dropdown-item {
         transition: all 0.2s ease;
         font-size: 14px;
@@ -136,10 +148,9 @@
 
     .dropdown-item:hover {
         background-color: #f0f3f7;
-        color: #3B6181; /* Biru Steel */
+        color: #3B6181;
     }
 
-    /* Admin Link khusus */
     .text-admin-link {
         color: #3B6181 !important;
     }
@@ -154,18 +165,34 @@
     }
 
     /* Menghilangkan panah dropdown default */
-    .navbar-nav .dropdown-toggle::after {
-        display: none;
+    .dropdown-toggle::after {
+        display: none !important;
     }
 
     .dropdown-menu {
         border-radius: 12px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+        animation: dropdownFadeIn 0.2s ease-out;
+    }
+
+    @keyframes dropdownFadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     /* Search Box Focus */
+    .search-box {
+        border: 1px solid #dee2e6;
+        transition: all 0.2s;
+    }
     .search-box:focus-within {
-        border: 1px solid #3B6181;
+        border-color: #3B6181;
+        box-shadow: 0 0 0 0.2rem rgba(59, 97, 129, 0.1);
+    }
+
+    .category-btn:hover {
+        background-color: #f8f9fa;
+        border-color: #3B6181 !important;
     }
 </style>

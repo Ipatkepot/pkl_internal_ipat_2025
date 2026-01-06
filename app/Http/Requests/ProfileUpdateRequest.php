@@ -27,7 +27,7 @@ class ProfileUpdateRequest extends FormRequest
         return [
             // Nama: wajib, string, max 255 karakter
             'name'    => [
-                'required',
+
                 'string',
                 'max:255',
             ],
@@ -37,7 +37,7 @@ class ProfileUpdateRequest extends FormRequest
             // Jika validasi email tetap 'unique:users', maka akan error "Email sudah terdaftar" (karena email dia sendiri).
             // Solusi: ->ignore($id) memberitahu database untuk melewati pengecekan unique pada baris ID user ini.
             'email'   => [
-                'required',
+
                 'string',
                 'lowercase',
                 'email',
@@ -57,7 +57,6 @@ class ProfileUpdateRequest extends FormRequest
 
             // Address: opsional, text max 500 karakter
             'address' => [
-                'nullable',
                 'string',
                 'max:500',
             ],

@@ -1,86 +1,65 @@
 <?php
+// app/Http/Controllers/Admin/OrderController.php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class OrderController extends Controller
 {
     /**
-     * Menampilkan daftar semua pesanan
+     * Menampilkan daftar semua pesanan untuk admin.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $orders = Order::with(['user', 'items.product'])
-            ->when($request->status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->when($request->search, function ($query, $search) {
-                // Gunakan order_number karena di model kamu kolomnya adalah order_number
-                return $query->where('order_number', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    });
+        $orders = Order::query()
+            ->with('user')
+        // Cek apakah ada parameter status di URL
+            ->when($request->filled('status'), function ($q) use ($request) {
+                return $q->where('status', $request->status);
             })
             ->latest()
-            ->paginate(15)
-            ->withQueryString();
+            ->paginate(20)
+            ->withQueryString(); // PENTING: Supaya saat pindah halaman (pagination), filternya tidak hilang
 
         return view('admin.orders.index', compact('orders'));
     }
 
     /**
-     * Menampilkan detail satu pesanan
+     * Detail order untuk admin.
      */
-    public function show(Order $order): View
+    public function show(Order $order)
     {
-        // PERBAIKAN: Hapus 'shipping' dan 'address' karena relasi tersebut tidak ada di model Order
-        // Data pengiriman sudah otomatis terbawa karena ada di tabel orders itu sendiri
-        $order->load([
-            'user',
-            'items.product',
-            'payment',
-        ]);
-
+        $order->load(['items.product', 'user']);
         return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Update status pesanan via form (POST)
+     * Update status pesanan
      */
-    public function updateStatus(Request $request, Order $order): RedirectResponse
+    public function updateStatus(Request $request, Order $order)
     {
+        // Pastikan in: sesuai dengan yang ada di database kamu (shipped, delivered)
         $request->validate([
-            'status' => 'required|in:pending,processing,shipped,completed,cancelled',
+            'status' => 'required|in:pending,shipped,delivered,cancelled',
         ]);
 
-        $order->update([
-            'status' => $request->status,
-        ]);
+        $oldStatus = $order->status;
+        $newStatus = $request->status;
 
-        return back()->with('success', 'Status pesanan berhasil diupdate menjadi "' . ucfirst($request->status) . '"');
-    }
+        // Logika Restock jika pesanan dibatalkan
+        if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->increment('stock', $item->quantity);
+                }
+            }
+        }
 
-    /**
-     * Update resi pengiriman
-     */
-    public function updateTracking(Request $request, Order $order): RedirectResponse
-    {
-        $request->validate([
-            'tracking_number' => 'nullable|string|max:100',
-            'courier'         => 'nullable|string|max:50',
-        ]);
+        $order->update(['status' => $newStatus]);
 
-        // Pastikan kolom ini ada di migration kamu, jika tidak ada silakan tambahkan via migration
-        $order->update([
-            'tracking_number' => $request->tracking_number,
-            'courier'         => $request->courier,
-        ]);
-
-        return back()->with('success', 'Nomor resi berhasil disimpan!');
+        return back()->with('success', "Status pesanan #{$order->order_number} berhasil diubah menjadi " . ucfirst($newStatus));
     }
 }

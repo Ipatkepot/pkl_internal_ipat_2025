@@ -109,10 +109,10 @@
                     </li>
 
                     <li class="nav-item">
-                        {{-- <a href="{{ route('admin.reports.sales') }}"
+                        <a href="{{ route('admin.reports.sales') }}"
                             class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
                             <i class="bi bi-graph-up me-2"></i> Laporan Penjualan
-                        </a> --}}
+                        </a>
                     </li>
                 </ul>
             </nav>
@@ -150,7 +150,7 @@
 
             {{-- Flash Messages --}}
             <div class="px-4 pt-3">
-                @include('profile.partials.flash-messages')
+                @include('partials.flash-messages')
             </div>
 
             {{-- Page Content --}}

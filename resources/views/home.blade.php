@@ -32,7 +32,7 @@
         width: 100%;
         border-radius: 15px;
         overflow: hidden;
-        height: 450px; /* Sesuai request perbesar foto sebelumnya */
+        height: 350px; /* Sesuai request perbesar foto sebelumnya */
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         position: relative;
     }
@@ -169,10 +169,10 @@
         <div class="swiper heroSwiper">
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
-                    <img src="images/banner1wfl.png" class="hero-img">
+                    <img src="images/iklan.png" class="hero-img">
                 </div>
                 <div class="swiper-slide">
-                    <img src="https://www.static-src.com/siva/asset/12_2025/Homepage_Desktop_Asics-gelnimbus28.jpg" class="hero-img">
+                   <a href="{{ route('catalog.index') }}"><img src="images/iklan2.png" class="hero-img"></a>
                 </div>
                 <div class="swiper-slide">
                     <img src="https://www.static-src.com/siva/asset/12_2025/NPI-iPad-Pro-M5-dw2000x500.jpg" class="hero-img">
@@ -217,7 +217,7 @@
 
         <div class="product-grid">
             @foreach($featuredProducts as $product)
-                @include('profile.partials.product-card', ['product' => $product])
+                @include('partials.product-card', ['product' => $product])
             @endforeach
         </div>
     </section>
@@ -264,7 +264,7 @@
 
         <div class="product-grid">
             @foreach($latestProducts as $product)
-                @include('profile.partials.product-card', ['product' => $product])
+                @include('partials.product-card', ['product' => $product])
             @endforeach
         </div>
     </section>

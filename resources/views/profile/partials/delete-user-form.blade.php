@@ -1,4 +1,4 @@
-
+{{-- resources/views/profile/partials/delete-user-form.blade.php --}}
 
 <p class="text-muted small">
     Setelah akun dihapus, semua data dan resource akan hilang permanen. Silahkan unduh data penting sebelum menghapus.
