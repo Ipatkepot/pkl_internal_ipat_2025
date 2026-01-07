@@ -25,10 +25,10 @@
             </button>
             <ul class="dropdown-menu border-0 shadow-lg mt-3 rounded-4 p-2" aria-labelledby="dropdownCategory" style="min-width: 220px;">
                 <li><h6 class="dropdown-header text-dark fw-bold">Kategori Populer</h6></li>
-                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'smartphone']) }}">Smartphone</a></li>
-                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'laptop']) }}">Laptop & PC</a></li>
-                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'tablet']) }}">Tablet</a></li>
-                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'audio']) }}">Audio & Wearable</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'Earphone']) }}">Earphone</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'Case_hp']) }}">Case Hp</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'powerbank']) }}">Powerbank</a></li>
+                <li><a class="dropdown-item py-2 rounded-3" href="{{ route('catalog.index', ['category' => 'flash_disk']) }}">Audio & Wearable</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item py-2 rounded-3 fw-medium text-center" href="{{ route('catalog.index') }}" style="color: #3B6181;">Lihat Semua Kategori</a></li>
             </ul>

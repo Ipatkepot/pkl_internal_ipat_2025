@@ -19,87 +19,31 @@
     {{-- Favicon --}}
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     
+    {{-- CSS Library --}}
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-
-    {{-- Google Fonts --}}
+    {{-- Google Fonts: Plus Jakarta Sans (Modern & Clean) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     {{-- Vite CSS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Stack untuk CSS tambahan per halaman --}}
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1a1d23;
+        }
+        /* Custom scrollbar agar lebih premium */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #3B6181; border-radius: 10px; }
+    </style>
+
     @stack('styles')
 </head>
-<script>
-  /**
-   * Fungsi AJAX untuk Toggle Wishlist
-   * Menggunakan Fetch API (Modern JS) daripada jQuery.
-   */
-  async function toggleWishlist(productId) {
-    try {
-      // 1. Ambil CSRF token dari meta tag HTML
-      // Laravale mewajibkan token ini untuk setiap request POST demi keamanan.
-      const token = document.querySelector('meta[name="csrf-token"]').content;
 
-      // 2. Kirim Request ke Server
-      const response = await fetch(`/wishlist/toggle/${productId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": token, // Tempel token di header
-        },
-      });
-
-      // 3. Handle jika user belum login (Error 401 Unauthorized)
-      if (response.status === 401) {
-        window.location.href = "/login"; // Lempar ke halaman login
-        return;
-      }
-
-      // 4. Baca respon JSON dari server
-      const data = await response.json();
-
-      if (data.status === "success") {
-        // 5. Update UI tanpa reload halaman
-        updateWishlistUI(productId, data.added); // Ganti warna ikon
-        updateWishlistCounter(data.count); // Update angka di header
-        showToast(data.message); // Tampilkan notifikasi
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      showToast("Terjadi kesalahan sistem.", "error");
-    }
-  }
-
-  function updateWishlistUI(productId, isAdded) {
-    // Cari semua tombol wishlist untuk produk ini (bisa ada di card & detail page)
-    const buttons = document.querySelectorAll(`.wishlist-btn-${productId}`);
-
-    buttons.forEach((btn) => {
-      const icon = btn.querySelector("i"); // Menggunakan tag <i> untuk Bootstrap Icons
-      if (isAdded) {
-        // Ubah jadi merah solid (Love penuh)
-        icon.classList.remove("bi-heart", "text-secondary");
-        icon.classList.add("bi-heart-fill", "text-danger");
-      } else {
-        // Ubah jadi abu-abu outline (Love kosong)
-        icon.classList.remove("bi-heart-fill", "text-danger");
-        icon.classList.add("bi-heart", "text-secondary");
-      }
-    });
-  }
-
-  function updateWishlistCounter(count) {
-    const badge = document.getElementById("wishlist-count");
-    if (badge) {
-      badge.innerText = count;
-      // Bootstrap badge display toggle logic
-      badge.style.display = count > 0 ? "inline-block" : "none";
-    }
-  }
-</script>
 <body>
     {{-- ============================================
          NAVBAR
@@ -107,9 +51,9 @@
     @include('partials.navbar')
 
     {{-- ============================================
-         FLASH MESSAGES
+         FLASH MESSAGES (PENTING: Pastikan partial ini bersih dari teks manual)
          ============================================ --}}
-    <div class="container mt-3">
+    <div class="container mt-4">
         @include('partials.flash-messages')
     </div>
 
@@ -125,47 +69,83 @@
          ============================================ --}}
     @include('partials.footer')
 
+    {{-- ============================================
+         JAVASCRIPT
+         ============================================ --}}
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Inisialisasi AOS (Animate on Scroll)
+        AOS.init({
+            once: true,
+            duration: 800
+        });
+
+        /**
+         * Fungsi Global untuk Toggle Wishlist (AJAX)
+         */
+        async function toggleWishlist(productId) {
+            // Cek Guest melalui Laravel Blade Helper
+            @guest
+                window.location.href = "{{ route('login') }}";
+                return;
+            @endguest
+
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                const response = await fetch("{{ route('wishlist.index') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": token,
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                });
+
+                if (response.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'added' || data.added) {
+                    updateWishlistIcon(productId, true);
+                } else {
+                    updateWishlistIcon(productId, false);
+                }
+
+                // Update Angka Badge Wishlist di Navbar
+                const badge = document.getElementById("wishlist-count");
+                if (badge && data.count !== undefined) {
+                    badge.innerText = data.count;
+                    badge.style.display = data.count > 0 ? "inline-block" : "none";
+                }
+
+            } catch (error) {
+                console.error("Wishlist Error:", error);
+            }
+        }
+
+        /**
+         * Update Tampilan Ikon Hati secara Dinamis
+         */
+        function updateWishlistIcon(productId, isAdded) {
+            // Mencari berdasarkan ID atau Class untuk fleksibilitas di card/detail
+            const icons = document.querySelectorAll('#wishlist-icon-' + productId + ', .wishlist-btn-' + productId + ' i');
+            
+            icons.forEach(icon => {
+                if (isAdded) {
+                    icon.className = 'bi bi-heart-fill text-danger';
+                } else {
+                    icon.className = 'bi bi-heart text-dark';
+                }
+            });
+        }
+    </script>
+
     {{-- Stack untuk JS tambahan per halaman --}}
     @stack('scripts')
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init({once: true});</script>
-<script>
-function toggleWishlist(productId) {
-    // 1. Cek Login
-    @guest
-        window.location.href = "{{ route('login') }}";
-        return;
-    @endguest
-
-    // 2. Kirim Request ke Server
-    fetch("{{ route('wishlist.index') }}", {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ product_id: productId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // 3. Update Icon Hati Secara Dinamis
-        const icon = document.getElementById('wishlist-icon-' + productId);
-        
-        if (data.status === 'added') {
-            icon.classList.remove('bi-heart', 'text-dark');
-            icon.classList.add('bi-heart-fill', 'text-danger');
-            // Opsional: Tambah Notifikasi Toast
-        } else {
-            icon.classList.remove('bi-heart-fill', 'text-danger');
-            icon.classList.add('bi-heart', 'text-dark');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Gagal memperbarui wishlist. Coba lagi.');
-    });
-}
-</script>
 </body>
 </html>

@@ -82,6 +82,8 @@ Route::middleware('auth')->group(function () {
     // Checkout & Payment
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/direct', [CheckoutController::class, 'directCheckout'])->name('checkout.direct')->middleware('auth');
+
 
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');
