@@ -1,11 +1,13 @@
 <?php
+
 // app/Http/Controllers/Admin/ReportController.php
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Exports\SalesReportExport;
+use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -13,80 +15,90 @@ use Maatwebsite\Excel\Facades\Excel;
 class ReportController extends Controller
 {
     /**
-     * Menampilkan halaman laporan di browser.
-     */
-    /**
-     * Menampilkan halaman laporan di browser.
+     * Menampilkan halaman laporan penjualan di browser.
      * Fitur:
      * 1. Filter Rentang Tanggal (Date Range)
-     * 2. Summary Statistik
-     * 3. Grafik Penjualan per Kategori (Analitik)
+     * 2. Summary Statistik (Total Order & Omset)
+     * 3. Grafik/Analitik Penjualan per Kategori
      * 4. Tabel Detail Transaksi dengan Pagination
      */
     public function sales(Request $request)
     {
-        // 1. Tentukan Default Tanggal
-        // Jika user tidak memilih tanggal, kita set default ke BULAN INI.
-        // startOfMonth() otomatis mengambil tanggal 1 bulan berjalan.
-        $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
-        $dateTo   = $request->date_to ?? now()->toDateString();
+        // Default: Bulan ini (dari tanggal 1 sampai hari ini)
+        $dateFrom = $request->date_from ?? Carbon::now()->startOfMonth()->toDateString();
+        $dateTo   = $request->date_to ?? Carbon::now()->toDateString();
 
-        // 2. Query Utama (Tabel Transaksi Detail)
-        // Kita gunakan paginate() agar beban server ringan meskipun datanya ribuan.
-        $orders = Order::with(['items', 'user']) // Eager Load relasi
-            ->whereDate('created_at', '>=', $dateFrom)
-            ->whereDate('created_at', '<=', $dateTo)
-            ->where('payment_status', 'paid') // PENTING: Hanya hitung yang 'paid' (uang masuk)
-            ->latest() // alias orderBy created_at desc
-            ->paginate(20);
+        // Konversi ke Carbon untuk filter akurat
+        $start = Carbon::parse($dateFrom)->startOfDay();
+        $end   = Carbon::parse($dateTo)->endOfDay();
 
-        // 3. Query Summary (Total Omset di periode ini)
-        // Perhatikan: Kita tidak menggunakan data pagination ($orders) untuk menghitung total.
-        // Kenapa? Karena $orders hanya berisi 20 data per halaman.
-        // Kita butuh TOTAL SEBENARNYA dari seluruh data yang difilter.
-        // Maka kita buat query aggregat terpisah yang sangat ringan (hanya select COUNT dan SUM).
-        $summary = Order::whereDate('created_at', '>=', $dateFrom)
-            ->whereDate('created_at', '<=', $dateTo)
+        // 1. Query Tabel Detail (dengan pagination)
+        $orders = Order::with(['items', 'user'])
+            ->whereBetween('created_at', [$start, $end])
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->paginate(20)
+            ->appends($request->query()); // Biar filter tanggal tetap saat ganti halaman
+
+        // 2. Query Summary (total order & revenue di periode)
+        $summary = Order::whereBetween('created_at', [$start, $end])
             ->where('payment_status', 'paid')
             ->selectRaw('COUNT(*) as total_orders, SUM(total_amount) as total_revenue')
             ->first();
 
-        // 4. Query Analitik: Penjualan per Kategori
-        // Logika: Kita ingin tahu Kategori mana yang paling laku.
-        // Masalah: Tabel 'categories' tidak berhubungan langsung dengan 'order_items'.
-        // Solusi: JOIN 4 tabel! (Categories -> Products -> OrderItems -> Orders)
+        // Safe access kalau tidak ada data
+        $totalOrders  = $summary->total_orders ?? 0;
+        $totalRevenue = $summary->total_revenue ?? 0;
+
+        // 3. Query Analitik: Penjualan per Kategori
         $byCategory = DB::table('order_items')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'products.id', '=', 'order_items.product_id')
             ->join('categories', 'categories.id', '=', 'products.category_id')
-            // Filter tanggal berdasarkan table ORDERS (kapan transaksi terjadi)
-            ->whereDate('orders.created_at', '>=', $dateFrom)
-            ->whereDate('orders.created_at', '<=', $dateTo)
+            ->whereBetween('orders.created_at', [$start, $end])
             ->where('orders.payment_status', 'paid')
-            // Grouping berdasarkan Kategori untuk mendapat SUM per kategori
             ->groupBy('categories.id', 'categories.name')
             ->select(
-                'categories.name',
-                DB::raw('SUM(order_items.subtotal) as total') // Hitung total duit per kategori
+                'categories.name as category_name',
+                DB::raw('SUM(order_items.quantity * order_items.price) as total_sales'), // Lebih akurat: quantity x price
+                DB::raw('SUM(order_items.quantity) as total_quantity')
             )
-            ->orderByDesc('total') // Urutkan dari yang omsetnya paling besar
+            ->orderByDesc('total_sales')
+            ->limit(10) // Opsional: batasi 10 kategori teratas biar gak overload
             ->get();
 
-        return view('admin.reports.sales', compact('orders', 'summary', 'byCategory', 'dateFrom', 'dateTo'));
+        return view('admin.reports.sales', compact(
+            'orders',
+            'totalOrders',
+            'totalRevenue',
+            'byCategory',
+            'dateFrom',
+            'dateTo'
+        ));
     }
 
     /**
-     * Handle download Excel.
+     * Handle export ke Excel
      */
     public function exportSales(Request $request)
     {
-        $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
-        $dateTo = $request->date_to ?? now()->toDateString();
+        // Validasi input tanggal
+        $request->validate([
+            'date_from' => 'required|date',
+            'date_to'   => 'required|date|after_or_equal:date_from',
+        ]);
 
-        // Download file
+        $dateFrom = $request->date_from;
+        $dateTo   = $request->date_to;
+
+        $fromFormatted = Carbon::parse($dateFrom)->format('d-m-Y');
+        $toFormatted   = Carbon::parse($dateTo)->format('d-m-Y');
+
+        $filename = "Laporan_Penjualan_{$fromFormatted}_sd_{$toFormatted}.xlsx";
+
         return Excel::download(
             new SalesReportExport($dateFrom, $dateTo),
-            "laporan-penjualan-{$dateFrom}-sd-{$dateTo}.xlsx"
+            $filename
         );
     }
 }

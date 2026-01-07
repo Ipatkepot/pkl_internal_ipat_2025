@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Exports;
 
 use App\Models\Order;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -19,22 +19,18 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
         protected string $dateTo
     ) {}
 
-    /**
-     * 1. Query Data
-     */
     public function query()
     {
+        $start = Carbon::parse($this->dateFrom)->startOfDay();
+        $end   = Carbon::parse($this->dateTo)->endOfDay();
+
         return Order::query()
             ->with(['user', 'items'])
-            ->whereDate('created_at', '>=', $this->dateFrom)
-            ->whereDate('created_at', '<=', $this->dateTo)
+            ->whereBetween('created_at', [$start, $end])
             ->where('payment_status', 'paid')
             ->orderBy('created_at', 'asc');
     }
 
-    /**
-     * 2. Header Kolom Excel
-     */
     public function headings(): array
     {
         return [
@@ -44,34 +40,26 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
             'Email',
             'Jumlah Item',
             'Total Belanja (Rp)',
-            'Status'
+            'Status',
         ];
     }
 
-    /**
-     * 3. Mapping Data per Baris
-     * Mengatur data apa yang masuk ke kolom mana.
-     */
     public function map($order): array
     {
         return [
             $order->order_number,
-            $order->created_at->format('d/m/Y H:i'), // Format tanggal Excel friendly
-            $order->user->name,
-            $order->user->email,
+            $order->created_at->format('d/m/Y H:i'),
+            $order->user->name ?? '-',
+            $order->user->email ?? '-',
             $order->items->sum('quantity'),
-            $order->total_amount, // Biarkan angka murni agar bisa dijumlah di Excel
+            $order->total_amount,
             ucfirst($order->status),
         ];
     }
 
-    /**
-     * 4. Styling (Opsional: Bold Header)
-     */
     public function styles(Worksheet $sheet)
     {
         return [
-            // Style baris pertama (Header) jadi Bold
             1 => ['font' => ['bold' => true]],
         ];
     }
