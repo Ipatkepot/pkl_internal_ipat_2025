@@ -102,10 +102,15 @@
                                 <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-white btn-sm border" title="Edit">
                                     <i class="bi bi-pencil text-warning"></i>
                                 </a>
-                                <button type="button" class="btn btn-white btn-sm border" title="Hapus" 
-                                        onclick="confirmDelete('{{ $product->id }}')">
+                               <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" 
+                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
+                                @csrf
+                                @method('DELETE')
+                                
+                                <button type="submit" class="btn btn-white btn-sm border" title="Hapus">
                                     <i class="bi bi-trash text-danger"></i>
                                 </button>
+                            </form>
                             </div>
                         </td>
                     </tr>

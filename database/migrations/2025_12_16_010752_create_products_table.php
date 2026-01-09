@@ -45,6 +45,7 @@ return new class extends Migration
                                                             // STATUS VISIBILITAS
             $table->boolean('is_active')->default(true);    // true = tampil di katalog
             $table->boolean('is_featured')->default(false); // true = tampil di carousel/highlight
+            $table->softDeletes(); // Tambahkan ini di migration produk
 
             $table->timestamps(); // created_at & updated_at
 

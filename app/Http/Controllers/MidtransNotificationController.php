@@ -1,21 +1,36 @@
 <?php
+// app/Http/Controllers/MidtransNotificationController.php
+
 namespace App\Http\Controllers;
 
 use App\Events\OrderPaidEvent;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MidtransNotificationController extends Controller
 {
+    /**
+     * Handle incoming webhook notification from Midtrans.
+     * URL: POST /midtrans/notification
+     */
+    /**
+     * Handle incoming webhook notification from Midtrans.
+     * URL: POST /midtrans/notification
+     * Access: Public (Midtrans Server)
+     */
     public function handle(Request $request)
     {
+
+        // 1. Ambil data notifikasi
         $payload = $request->all();
+
+        // Log untuk debugging (Cev storage/logs/laravel.log jika ada masalah)
         Log::info('Midtrans Notification Received', $payload);
 
-        $rawOrderId        = $payload['order_id'] ?? null;
+        // 2. Extract Data Penting
+        $orderId           = $payload['order_id'] ?? null;
         $transactionStatus = $payload['transaction_status'] ?? null;
         $paymentType       = $payload['payment_type'] ?? null;
         $statusCode        = $payload['status_code'] ?? null;
@@ -24,143 +39,221 @@ class MidtransNotificationController extends Controller
         $fraudStatus       = $payload['fraud_status'] ?? null;
         $transactionId     = $payload['transaction_id'] ?? null;
 
-        // 1. Validasi Payload Dasar
-        if (! $rawOrderId || ! $transactionStatus || ! $signatureKey) {
+        // 3. Validasi Field Wajib
+        if (! $orderId || ! $transactionStatus || ! $signatureKey) {
+            Log::warning('Midtrans Notification: Missing required fields', $payload);
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
-        // 2. Validasi Signature (Keamanan)
-        $serverKey         = config('midtrans.server_key');
-        $expectedSignature = hash("sha512", $rawOrderId . $statusCode . $grossAmount . $serverKey);
+        // ============================================================
+        // 4. VALIDASI SIGNATURE KEY (KRITIS!)
+        // ============================================================
+        // Ini adalah lapisan keamanan utama. Kita harus men-generate ulang
+        // signature di sisi kita dan membandingkannya dengan kiriman Midtrans.
+        // Rumus: SHA512(order_id + status_code + gross_amount + ServerKey)
+        // ============================================================
+        $serverKey = config('midtrans.server_key');
+
+        // Buat string hash
+        $expectedSignature = hash(
+            'sha512',
+            $orderId . $statusCode . $grossAmount . $serverKey
+        );
 
         if ($signatureKey !== $expectedSignature) {
-            Log::warning('Midtrans Notification: Invalid signature', ['order_id' => $rawOrderId]);
+            // Jika beda, berarti request PALSU (potensi serangan hacker)
+            Log::warning('Midtrans Notification: Invalid signature', [
+                'order_id' => $orderId,
+                'received' => $signatureKey,
+                'expected' => $expectedSignature,
+            ]);
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
-        // ==========================================================
-        // 3. FIX: PECAH ORDER ID (Gabungin ORD + Kode Unik)
-        // ==========================================================
-        $parts = explode('-', $rawOrderId);
-        // $parts[0] = ORD, $parts[1] = 695B232DBFBBD
-        $orderNumber = $parts[0] . '-' . $parts[1];
-
-        Log::info('Mencari Order Number di DB: ' . $orderNumber);
-
-        // Cari Data Order berdasarkan order_number asli
-        $order = Order::where('order_number', $orderNumber)->with('payment', 'items.product')->first();
+        // 5. Cari Order di Database
+        $order = Order::where('order_number', $orderId)->first();
 
         if (! $order) {
-            Log::error('Midtrans Notification: Order Not Found', ['order_number' => $orderNumber]);
+            Log::warning("Midtrans Notification: Order not found", ['order_id' => $orderId]);
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        // 4. Idempotency (Jangan proses kalau sudah sukses/batal)
-        if (in_array($order->status, ['processing', 'shipped', 'completed', 'cancelled'])) {
-            Log::info("Order {$orderNumber} sudah pernah diproses sebelumnya.");
+        // ============================================================
+        // 6. IDEMPOTENCY CHECK & CONCURRENCY
+        // ============================================================
+        // Midtrans bisa mengirim notifikasi yang sama berkali-kali (retry mechanism).
+        // Kita harus pastikan logika kita aman jika dipanggil double.
+        // Jika order sudah berstatus final (processing/shipped/delivered), stop.
+        // ============================================================
+        if (in_array($order->status, ['processing', 'shipped', 'delivered', 'cancelled'])) {
+            Log::info("Midtrans Notification: Order already processed", ['order_id' => $orderId]);
             return response()->json(['message' => 'Order already processed'], 200);
         }
 
-        // 5. Update Payment Info (Log transaksi Midtrans)
-        if ($order->payment) {
-            $order->payment->update([
+        // 7. Update Data Tambahan di Payment Record
+        // Simpan transaction_id dari Midtrans untuk referensi refund nanti
+        $payment = $order->payment;
+        if ($payment) {
+            $payment->update([
                 'midtrans_transaction_id' => $transactionId,
                 'payment_type'            => $paymentType,
                 'raw_response'            => json_encode($payload),
             ]);
         }
 
-        // 6. Mapping Status
+        // ============================================================
+        // 8. MAPPING STATUS TRANSAKSI
+        // ============================================================
+        // Logika utama penentuan nasib order ada di sini.
+        // ============================================================
         switch ($transactionStatus) {
             case 'capture':
+                // Khusus Kartu Kredit (Authorize & Capture)
                 if ($fraudStatus === 'challenge') {
-                    $this->handlePending($order, 'Review fraud diperlukan');
+                    // Transaksi dicurigai fraud oleh FDS Midtrans -> Review
+                    $this->handlePending($order, $payment, 'Menunggu review fraud');
                 } else {
-                    $this->handleSuccess($order);
+                    $this->handleSuccess($order, $payment);
                 }
                 break;
 
             case 'settlement':
-                $this->handleSuccess($order);
+                // Pembayaran sukses (Bank Transfer, E-Wallet, dll)
+                $this->handleSuccess($order, $payment);
                 break;
 
             case 'pending':
-                $this->handlePending($order, 'Menunggu pembayaran');
+                // User belum bayar / Menunggu pembayaran
+                $this->handlePending($order, $payment, 'Menunggu pembayaran');
                 break;
 
             case 'deny':
+                // Pembayaran ditolak oleh bank/provider
+                $this->handleFailed($order, $payment, 'Pembayaran ditolak');
+                break;
+
             case 'expire':
+                // Token expired (tidak dibayar tepat waktu)
+                $this->handleFailed($order, $payment, 'Pembayaran kadaluarsa');
+                break;
+
             case 'cancel':
-                $this->handleFailed($order, $transactionStatus);
+                if ($order->status !== 'cancelled') {
+                    // Restock Logic
+                    foreach ($order->items as $item) {
+                        $item->product->increment('stock', $item->quantity);
+                    }
+                    $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+                }
                 break;
 
             case 'refund':
             case 'partial_refund':
-                $this->handleRefund($order);
+                $this->handleRefund($order, $payment);
                 break;
+
+            default:
+                Log::info("Midtrans Notification: Unknown status", [
+                    'order_id' => $orderId,
+                    'status'   => $transactionStatus,
+                ]);
         }
 
+        // 9. Return 200 OK
+        // Wajib return 200 agar Midtrans tahu notifikasi berhasil diterima.
+        // Jika tidak, Midtrans akan terus mengirim ulang notifikasi.
         return response()->json(['message' => 'Notification processed'], 200);
     }
 
-    protected function handleSuccess(Order $order): void
+    /**
+     * Handle pembayaran sukses.
+     */
+    protected function handleSuccess(Order $order, ?Payment $payment): void
     {
-        DB::transaction(function () use ($order) {
-            // Update Order ke Processing
-            $order->update([
-                'status'         => 'processing',
-                'payment_status' => 'paid',
-            ]);
+        Log::info("Payment SUCCESS for Order: {$order->order_number}");
 
-            if ($order->payment) {
-                $order->payment->update([
-                    'status'  => 'success',
-                    'paid_at' => now(),
-                ]);
-            }
-            Log::info("Order {$order->order_number} BERHASIL diupdate ke PAID.");
-        });
-
-        // Trigger event jika ada
-        if (class_exists(\App\Events\OrderPaidEvent::class)) {
-            event(new OrderPaidEvent($order));
-        }
-    }
-
-    protected function handlePending(Order $order, string $message): void
-    {
-        if ($order->payment) {
-            $order->payment->update(['status' => 'pending']);
-        }
-    }
-
-    protected function handleFailed(Order $order, string $reason): void
-    {
-        DB::transaction(function () use ($order, $reason) {
-            $order->update([
-                'status'         => 'cancelled',
-                'payment_status' => 'failed',
-            ]);
-
-            if ($order->payment) {
-                $order->payment->update(['status' => 'failed']);
-            }
-
-            // Kembalikan stok produk
+        // JIKA STATUS SEBELUMNYA MASIH PENDING, BARU KURANGI STOK
+        if ($order->status === 'pending') {
             foreach ($order->items as $item) {
-                if ($item->product) {
-                    $item->product->increment('stock', $item->quantity);
-                }
+                // PRODUK DIKURANGI DI SINI
+                $item->product->decrement('stock', $item->quantity);
             }
-        });
+        }
 
-        Log::info("Order {$order->order_number} marked as failed. Reason: {$reason}");
+        $order->update([
+            'status' => 'processing',
+        ]);
+
+        if ($payment) {
+            $payment->update([
+                'status'  => 'success',
+                'paid_at' => now(),
+            ]);
+        }
+
+        event(new OrderPaidEvent($order));
     }
 
-    protected function handleRefund(Order $order): void
+    /**
+     * Handle pembayaran pending.
+     */
+    protected function handlePending(Order $order, ?Payment $payment, string $message = ''): void
     {
-        if ($order->payment) {
-            $order->payment->update(['status' => 'refunded']);
+        Log::info("Payment PENDING for Order: {$order->order_number}", ['message' => $message]);
+
+        // Order tetap pending
+        // Payment tetap pending
+        if ($payment) {
+            $payment->update(['status' => 'pending']);
         }
+    }
+
+    /**
+     * Handle pembayaran gagal/expired/cancelled.
+     */
+    protected function handleFailed(Order $order, ?Payment $payment, string $reason = ''): void
+    {
+        Log::info("Payment FAILED for Order: {$order->order_number}", ['reason' => $reason]);
+
+        // Update Order
+        $order->update([
+            'status' => 'cancelled',
+        ]);
+
+        // Update Payment
+        if ($payment) {
+            $payment->update(['status' => 'failed']);
+        }
+
+        // ============================================================
+        // RESTOCK LOGIC (Kembalikan stok produk)
+        // ============================================================
+        foreach ($order->items as $item) {
+            $item->product?->increment('stock', $item->quantity);
+        }
+
+        // TODO: Kirim email notifikasi pembayaran gagal
+    }
+
+    /**
+     * Handle refund.
+     */
+    protected function handleRefund(Order $order, ?Payment $payment): void
+    {
+        Log::info("Payment REFUNDED for Order: {$order->order_number}");
+
+        if ($payment) {
+            $payment->update(['status' => 'refunded']);
+        }
+
+        // TODO: Logic tambahan untuk refund
+    }
+
+    private function setSuccess(Order $order)
+    {
+        $order->update([ ...]);
+
+        // Fire & Forget
+        event(new OrderPaidEvent($order));
     }
 }
