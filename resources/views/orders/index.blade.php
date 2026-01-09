@@ -2,7 +2,7 @@
 
 @extends('layouts.app')
 
-@section('title', 'Daftar Transaksi')
+@section('title', 'GadgetMurah - Riwayat Transaksi')
 
 @section('content')
 <style>

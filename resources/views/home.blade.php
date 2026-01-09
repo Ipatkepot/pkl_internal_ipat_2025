@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Beranda - Modern Steel Blue')
+@section('title', 'GadgetMurah - Home')
 
 @section('content')
 

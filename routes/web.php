@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.destroy');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        Route::get('/{user}', [ProfileController::class, 'show'])->name('show');
     });
 
     // Cart

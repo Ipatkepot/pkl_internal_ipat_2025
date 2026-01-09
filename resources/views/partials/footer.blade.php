@@ -15,7 +15,7 @@
                 <div class="d-flex gap-2 mt-4">
                     <a href="#" class="footer-social-wrapper"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="footer-social-wrapper"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="footer-social-wrapper"><i class="bi bi-twitter-x"></i></a>
+                    <a href="https://github.com/Ipatkepot" class="footer-social-wrapper"><i class="bi bi-github"></i></a>
                     <a href="#" class="footer-social-wrapper"><i class="bi bi-youtube"></i></a>
                 </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
@@ -12,12 +13,20 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function edit(Request $request): View
+    
+    public function show(User $user) // Pastikan ada kata 'User' di depan $user
+{
+    // Cek apakah data masuk dengan dd($user);
+    return view('profile.show', compact('user'));
+}
+
+public function edit(Request $request): View
     {
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
     }
+    
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {

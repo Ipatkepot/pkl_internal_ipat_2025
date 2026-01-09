@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Keranjang Belanja')
+@section('title', 'GadgetMurah - Cart')
 
 @section('content')
 <style>

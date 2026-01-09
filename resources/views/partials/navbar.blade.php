@@ -9,7 +9,7 @@
         {{-- BRAND --}}
         <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ route('home') }}" style="color: #3B6181;">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" width="36" height="36">
-            <span class="fs-4 d-none d-sm-inline" style="letter-spacing: -1px;">Gadget Mahall</span>
+            <span class="fs-4 d-none d-sm-inline" style="letter-spacing: -1px;">Gadget Murah</span>
         </a>
 
         {{-- KATEGORI (FIXED: Sekarang bisa diklik) --}}
@@ -103,7 +103,7 @@
                             <li><hr class="dropdown-divider"></li>
                             @endif
 
-                            <li><a class="dropdown-item py-2 rounded-3" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2 text-muted"></i> Profil Saya</a></li>
+                            <li><a class="dropdown-item py-2 rounded-3" href="{{ route('profile.show' , auth()->id()) }}"><i class="bi bi-person me-2 text-muted"></i> Profil Saya</a></li>
                             <li><a class="dropdown-item py-2 rounded-3" href="{{ route('orders.index') }}"><i class="bi bi-bag-check me-2 text-muted"></i> Pesanan</a></li>
                             <li><a class="dropdown-item py-2 rounded-3" href="{{ route('wishlist.index') }}"><i class="bi bi-heart me-2 text-muted"></i> Wishlist</a></li>
                             

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Checkout')
+@section('title', 'GadgetMurah - Checkout')
 
 @section('content')
 <style>
