@@ -47,6 +47,11 @@ Route::controller(GoogleController::class)->group(function () {
     Route::get('auth/google', 'redirect')->name('auth.google');
     Route::get('auth/google/callback', 'callback');
 });
+Route::get('/auth/github', [App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToGithub'])
+    ->name('auth.github');
+
+Route::get('/auth/github/callback', [App\Http\Controllers\Auth\SocialAuthController::class, 'handleGithubCallback'])
+    ->name('auth.github.callback');
 
 // Midtrans Webhook (Must be Public)
 Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
@@ -108,6 +113,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // CRUD Produk & Kategori
     Route::resource('products', AdminProductController::class);
+    Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
 
     // Image Handling

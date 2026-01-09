@@ -4,21 +4,19 @@
 namespace App\Listeners;
 
 use App\Events\OrderPaidEvent;
-use App\Mail\OrderPaid;
 use Illuminate\Contracts\Queue\ShouldQueue; // <--- PENTING
 use Illuminate\Support\Facades\Mail;
 
-class SendOrderPaidEmail implements ShouldQueue // <--- PENTING
-{
-    // Retry jika gagal
-    public $tries = 3;
+class SendOrderPaidEmail// Hapus implements ShouldQueue
 
+{
     public function handle(OrderPaidEvent $event): void
     {
-        // Kirim email ke user
-        Mail::to($event->order->user->email)
-            ->send(new OrderPaid($event->order));
+        $order = $event->order->loadMissing('user');
 
-        // Opsional: Kirim notif ke Admin juga
+        if ($order && $order->user) {
+            Mail::to($order->user->email)
+                ->send(new \App\Mail\OrderPaid($order));
+        }
     }
 }

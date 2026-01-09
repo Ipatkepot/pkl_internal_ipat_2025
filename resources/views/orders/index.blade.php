@@ -72,6 +72,10 @@
     .text-biru-steel {
         color: var(--biru-steel) !important;
     }
+
+    .object-fit-cover {
+        object-fit: cover;
+    }
 </style>
 
 <div class="container py-5">
@@ -111,7 +115,7 @@
                                         <span class="text-muted small border-start ps-2">{{ $order->created_at->format('d M Y') }}</span>
                                     </div>
                                     <div class="mt-1 d-md-none">
-                                         <span class="text-muted extra-small">#{{ $order->order_number }}</span>
+                                         <span class="text-muted small">#{{ $order->order_number }}</span>
                                     </div>
                                 </div>
 
@@ -137,17 +141,20 @@
                                 {{-- Produk Info --}}
                                 <div class="col-md-7">
                                     @if($order->items->count() > 0)
+                                        @php $firstItem = $order->items->first(); @endphp
                                         <div class="d-flex align-items-center">
                                             <div class="rounded-3 border overflow-hidden me-3 shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
-                                                <img src="{{ $order->items->first()->product_image_url ?? 'https://via.placeholder.com/70' }}" 
-                                                     class="w-100 h-100 object-fit-cover">
+                                                {{-- PERBAIKAN DI SINI: Menggunakan variabel $firstItem dan helper asset --}}
+                                                <img src="{{ $firstItem->product && $firstItem->product->image ? asset('storage/' . $firstItem->product->image) : 'https://placehold.co/70x70?text=No+Img' }}" 
+                                                     class="w-100 h-100 object-fit-cover" 
+                                                     onerror="this.src='https://placehold.co/70x70?text=Error'">
                                             </div>
                                             <div class="overflow-hidden">
                                                 <h6 class="fw-bold mb-1 text-truncate text-dark" style="max-width: 100%;">
-                                                    {{ $order->items->first()->product_name }}
+                                                    {{ $firstItem->product_name }}
                                                 </h6>
                                                 <div class="text-muted small">
-                                                    {{ $order->items->first()->quantity }} barang x <span class="text-dark fw-medium">Rp {{ number_format($order->items->first()->price, 0, ',', '.') }}</span>
+                                                    {{ $firstItem->quantity }} barang x <span class="text-dark fw-medium">Rp {{ number_format($firstItem->price, 0, ',', '.') }}</span>
                                                 </div>
                                                 @if($order->items->count() > 1)
                                                     <div class="mt-1">
@@ -180,7 +187,7 @@
                     </div>
                 @endforeach
 
-                {{-- Pagination & Footer --}}
+                {{-- Pagination --}}
                 <div class="mt-5 d-flex flex-column align-items-center gap-4">
                     <div class="custom-pagination">
                         {{ $orders->links() }}
