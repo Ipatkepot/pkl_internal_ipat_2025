@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique(); // Slug wajib valid URL dan unik
             $table->text('description')->nullable();
+            $table->string('video_url')->nullable()->comment('Path video produk');
 
             // HARGA (PENTING!)
             // MENGAPA DECIMAL? Bukan Float?

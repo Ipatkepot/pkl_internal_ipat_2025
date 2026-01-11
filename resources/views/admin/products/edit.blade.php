@@ -1,3 +1,4 @@
+{{-- resources/views/admin/products/edit.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Edit Produk')
@@ -36,11 +37,9 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Kategori</label>
-                        <select name="category_id" class="form-select @error('category_id') is-invalid @enderror"
-                            required>
+                        <select name="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
                             @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) ==
-                                $category->id ? 'selected' : '' }}>
+                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                             @endforeach
@@ -65,14 +64,14 @@
                     </h6>
 
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Harga (Rp)</label>
                             <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
                                 value="{{ old('price', $product->price) }}" required>
                             @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Harga Diskon</label>
                             <input type="number" name="discount_price"
                                 class="form-control @error('discount_price') is-invalid @enderror"
@@ -80,67 +79,88 @@
                             @error('discount_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Stok</label>
                             <input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror"
                                 value="{{ old('stock', $product->stock) }}" required>
                             @error('stock') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Berat (gram)</label>
-                        <input type="number" name="weight" class="form-control @error('weight') is-invalid @enderror"
-                            value="{{ old('weight', $product->weight) }}" required>
-                        @error('weight') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label fw-semibold">Berat (gram)</label>
+                            <input type="number" name="weight" class="form-control @error('weight') is-invalid @enderror"
+                                value="{{ old('weight', $product->weight) }}" required>
+                            @error('weight') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- ================= IMAGES ================= --}}
+            {{-- ================= MEDIA (IMAGES & VIDEO) ================= --}}
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-4">
                     <h6 class="fw-bold mb-3 text-muted">
-                        <i class="bi bi-images me-1"></i> Gambar Produk
+                        <i class="bi bi-images me-1"></i> Media Produk (Gambar & Video)
                     </h6>
 
-                    {{-- Upload baru --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Tambah Gambar Baru</label>
-                        <input type="file" name="images[]" class="form-control" multiple>
-                        <small class="text-muted">Upload untuk menambah gambar baru</small>
-                    </div>
-
-                    {{-- Gambar lama --}}
-                    <div class="row g-3">
-                        @foreach($product->images as $image)
-                        <div class="col-md-3">
-                            <div class="card h-100 shadow-sm">
-                                <img src="{{ asset('storage/'.$image->image_path) }}" class="card-img-top"
-                                    style="object-fit:cover;height:160px">
-
-                                <div class="card-body p-2 text-center">
-                                    <div class="form-check mb-1">
-                                        <input class="form-check-input" type="radio" name="primary_image"
-                                            value="{{ $image->id }}" {{ $image->is_primary ? 'checked' : '' }}>
-                                        <label class="form-check-label small">
-                                            Gambar Utama
-                                        </label>
-                                    </div>
-
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="delete_images[]"
-                                            value="{{ $image->id }}">
-                                        <label class="form-check-label small text-danger">
-                                            Hapus
-                                        </label>
+                    <div class="row">
+                        {{-- Bagian Gambar --}}
+                        <div class="col-md-8 border-end">
+                            <label class="form-label fw-semibold">Manajemen Gambar</label>
+                            <input type="file" name="images[]" class="form-control mb-3" multiple>
+                            
+                            <div class="row g-2">
+                                @foreach($product->images as $image)
+                                <div class="col-md-4">
+                                    <div class="card h-100 shadow-sm border">
+                                        <img src="{{ asset('storage/'.$image->image_path) }}" class="card-img-top"
+                                            style="object-fit:cover;height:120px">
+                                        <div class="card-body p-2 bg-light text-center">
+                                            <div class="form-check mb-1">
+                                                <input class="form-check-input" type="radio" name="primary_image"
+                                                    value="{{ $image->id }}" {{ $image->is_primary ? 'checked' : '' }}>
+                                                <label class="form-check-label small">Utama</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="delete_images[]"
+                                                    value="{{ $image->id }}">
+                                                <label class="form-check-label small text-danger">Hapus</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
                         </div>
-                        @endforeach
-                    </div>
 
+                        {{-- Bagian Video --}}
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-primary">Video Produk</label>
+                            <input type="file" name="video" class="form-control mb-3" accept="video/mp4">
+                            
+                            @if($product->video_url)
+                                <div class="position-relative bg-dark rounded overflow-hidden" style="height: 150px;">
+                                    <video class="w-100 h-100" muted>
+                                        <source src="{{ asset('storage/' . $product->video_url) }}" type="video/mp4">
+                                    </video>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <i class="bi bi-play-circle text-white fs-1"></i>
+                                    </div>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="delete_video" value="1" id="delVideo">
+                                    <label class="form-check-label text-danger small" for="delVideo">
+                                        Hapus Video Saat Ini
+                                    </label>
+                                </div>
+                            @else
+                                <div class="alert alert-light border text-center py-4">
+                                    <i class="bi bi-camera-video text-muted fs-2"></i>
+                                    <p class="small text-muted mb-0">Belum ada video</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -154,16 +174,16 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_active" value="1" {{
-                                    old('is_active', $product->is_active) ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold">Aktif</label>
+                                <input class="form-check-input" type="checkbox" name="is_active" value="1" 
+                                    {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold">Aktif (Tampil)</label>
                             </div>
                         </div>
 
                         <div class="col-md-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_featured" value="1" {{
-                                    old('is_featured', $product->is_featured) ? 'checked' : '' }}>
+                                <input class="form-check-input" type="checkbox" name="is_featured" value="1" 
+                                    {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
                                 <label class="form-check-label fw-semibold">Produk Unggulan</label>
                             </div>
                         </div>
@@ -173,8 +193,8 @@
 
             {{-- SUBMIT --}}
             <div class="d-grid mb-5">
-                <button type="submit" class="btn btn-warning btn-lg text-white">
-                    <i class="bi bi-save me-1"></i> Update Produk
+                <button type="submit" class="btn btn-warning btn-lg text-white shadow">
+                    <i class="bi bi-save me-1"></i> Update Data Produk
                 </button>
             </div>
 

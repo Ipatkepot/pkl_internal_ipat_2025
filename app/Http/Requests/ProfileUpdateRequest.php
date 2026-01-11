@@ -1,5 +1,4 @@
 <?php
-// app/Http/Requests/ProfileUpdateRequest.php
 
 namespace App\Http\Requests;
 
@@ -14,8 +13,6 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Dalam konteks profil, semua user yang login boleh update profilnya sendiri.
-        // Route middleware 'auth' sudah menjamin user login.
         return true;
     }
 
@@ -26,81 +23,83 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             // Nama: wajib, string, max 255 karakter
-            'name'    => [
+            'name' => ['required', 'string', 'max:255'],
 
-                'string',
-                'max:255',
-            ],
-
-            // Email: wajib, format email valid, unik (kecuali milik user ini)
-            // Kasus Penting: User ingin ganti nama tapi tidak ganti email.
-            // Jika validasi email tetap 'unique:users', maka akan error "Email sudah terdaftar" (karena email dia sendiri).
-            // Solusi: ->ignore($id) memberitahu database untuk melewati pengecekan unique pada baris ID user ini.
-            'email'   => [
-
+            // Email: wajib, unik kecuali milik sendiri
+            'email' => [
+                'required',
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
-                // Rule::unique('users')->ignore($this->user()->id)
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
 
-            // Phone: opsional, regex khusus format Indonesia
-            // Menerima: 0812..., 62812..., +62812...
-            'phone'   => [
+            // Phone: regex Indonesia (08... / 628... / +628...)
+            'phone' => [
                 'nullable',
                 'string',
                 'max:20',
                 'regex:/^(\+62|62|0)8[1-9][0-9]{6,10}$/',
             ],
 
-            // Address: opsional, text max 500 karakter
+            // Address: opsional
             'address' => [
+                'nullable',
                 'string',
                 'max:500',
             ],
 
-            // Avatar: opsional
-            // Harus file gambar (mime: jpg, png, webp)
-            // Max ukuran 2MB (2048 KB)
-            // Dimensi minimal 100x100px agar tidak pecah/blur
-            'avatar'  => [
+            // Avatar: Max 2MB, Dimensi aman
+            'avatar' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,jpg,png,webp',
                 'max:2048',
-                'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000',
+                'dimensions:min_width=100,min_height=100,max_width=2500,max_height=2500',
+            ],
+
+            // Banner (Background): BARU! Max 3MB karena biasanya ukuran landscape lebih besar
+            'banner' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:3072', // 3MB
             ],
         ];
     }
 
     /**
-     * Custom error messages (Bahasa Indonesia).
-     * Laravel menyediakan default message (b.inggris), kita override agar lebih user friendly.
+     * Pesan error custom dalam Bahasa Indonesia.
      */
     public function messages(): array
     {
         return [
-            'phone.regex'       => 'Format nomor telepon tidak valid. Gunakan format 08xx atau +628xx.',
-            'avatar.max'        => 'Ukuran foto maksimal 2MB.',
-            'avatar.dimensions' => 'Dimensi foto harus antara 100x100 hingga 2000x2000 pixel.',
-            'email.unique'      => 'Email ini sudah digunakan oleh pengguna lain.',
+            'name.required'      => 'Nama lengkap tidak boleh kosong.',
+            'email.required'     => 'Alamat email tidak boleh kosong.',
+            'email.unique'       => 'Email ini sudah digunakan oleh pengguna lain.',
+            'phone.regex'        => 'Format nomor telepon tidak valid. Gunakan format 08xx atau +628xx.',
+            'avatar.max'         => 'Ukuran foto profil maksimal 2MB.',
+            'avatar.image'       => 'File yang diupload harus berupa gambar.',
+            'avatar.dimensions'  => 'Dimensi foto profil tidak didukung (minimal 100x100px).',
+            'banner.max'         => 'Ukuran background maksimal 3MB.',
+            'banner.image'       => 'Background harus berupa file gambar.',
+            'banner.mimes'       => 'Format background harus jpeg, jpg, png, atau webp.',
         ];
     }
 
     /**
-     * Custom attribute names for error messages.
-     * Mengubah ":attribute is required" menjadi "nama wajib diisi".
+     * Penamaan atribut agar pesan error lebih enak dibaca.
      */
     public function attributes(): array
     {
         return [
-            'name'    => 'nama',
+            'name'    => 'nama lengkap',
             'email'   => 'alamat email',
             'phone'   => 'nomor telepon',
             'address' => 'alamat domisili',
             'avatar'  => 'foto profil',
+            'banner'  => 'background profil',
         ];
     }
 }

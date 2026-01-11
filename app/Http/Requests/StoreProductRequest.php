@@ -12,8 +12,7 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Hanya user dengan role 'admin' yang boleh menambah produk.
-        // auth()->check() memastikan user sudah login.
+        // Pastikan login dan role adalah admin
         return auth()->check() && auth()->user()->role === 'admin';
     }
 
@@ -23,19 +22,14 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // category_id harus ada di tabel categories kolom id
             'category_id'    => ['required', 'exists:categories,id'],
-
             'name'           => ['required', 'string', 'max:255'],
             'description'    => ['nullable', 'string'],
 
             // Harga minimal 1000 rupiah
             'price'          => ['required', 'numeric', 'min:1000'],
 
-            // Harga diskon (opsional), tapi jika diisi:
-            // 1. Harus numeric
-            // 2. Minimal 0
-            // 3. Harus KURANG DARI ('lt' = less than) harga asli (price)
+            // Harga diskon (opsional), harus lebih kecil dari harga asli
             'discount_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
 
             'stock'          => ['required', 'integer', 'min:0'],
@@ -44,32 +38,41 @@ class StoreProductRequest extends FormRequest
             'is_active'      => ['boolean'],
             'is_featured'    => ['boolean'],
 
-            // Validasi Array Gambar
-            // 'images' harus berupa array
-            // Maksimal 10 file sekaligus
-            'images'         => ['nullable', 'array', 'max:10'],
+            // Validasi Video Baru
+            // max:20480 = 20MB
+            'video'          => ['nullable', 'file', 'mimes:mp4,mov,avi', 'max:20480'],
 
-            // Validasi TIAP item di dalam array images
-            // 'images.*' artinya "setiap file di dalam array images"
+            // Validasi Array Gambar
+            'images'         => ['nullable', 'array', 'max:10'],
             'images.*'       => [
-                'image',              // Harus berupa file gambar
-                'mimes:jpg,png,webp', // Ekstensi yang diperbolehkan
-                'max:2048',           // Maksimal 2MB per file (2048 KB)
+                'image',
+                'mimes:jpg,png,webp',
+                'max:2048', // Maksimal 2MB per file
             ],
         ];
     }
 
     /**
      * Persiapkan data sebelum validasi dijalankan.
-     * Berguna untuk normalisasi data.
      */
     protected function prepareForValidation(): void
     {
-        // Checkbox di HTML kadang tidak mengirim value jika tidak dicentang (atau kirim string "on").
-        // Kita paksa konversi jadi boolean true/false agar database menerima nilai yang benar (1/0).
+        // Normalisasi checkbox agar selalu bernilai boolean true/false
         $this->merge([
             'is_active'   => $this->boolean('is_active'),
             'is_featured' => $this->boolean('is_featured'),
         ]);
+    }
+
+    /**
+     * Pesan error kustom (Opsional)
+     */
+    public function messages(): array
+    {
+        return [
+            'video.mimes' => 'Format video yang didukung hanya mp4, mov, dan avi.',
+            'video.max'   => 'Ukuran video terlalu besar, maksimal 20MB.',
+            'discount_price.lt' => 'Harga diskon harus lebih rendah dari harga asli.',
+        ];
     }
 }

@@ -1,8 +1,3 @@
-{{-- ================================================
-     FILE: resources/views/catalog/show.blade.php
-     FUNGSI: Halaman detail produk + Checkout Langsung (Buy Now)
-     ================================================ --}}
-
 @extends('layouts.app')
 
 @section('title', $product->name)
@@ -26,7 +21,7 @@
         background-color: #3B6181; color: white;
     }
 
-    /* Gambar Utama */
+    /* Gambar & Video Utama */
     .main-image-container {
         position: relative;
         height: 450px;
@@ -34,12 +29,17 @@
         border-radius: 15px 15px 0 0;
         overflow: hidden;
     }
-    #main-image {
+    #main-image, #main-video {
         width: 100%;
         height: 100%;
         object-fit: contain;
         padding: 20px;
         transition: opacity 0.4s ease;
+    }
+    #main-video {
+        display: none;
+        background: #000;
+        padding: 0;
     }
 
     /* Navigasi Gambar */
@@ -89,6 +89,9 @@
         transition: all 0.3s;
         cursor: pointer;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .thumbnail-img:hover, .thumbnail-img.active {
         opacity: 1;
@@ -113,38 +116,46 @@
     </nav>
 
     <div class="row">
-        {{-- Product Images --}}
+        {{-- Media Section --}}
         <div class="col-lg-6 mb-4">
             <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
                 <div class="main-image-container">
-                    <img src="{{ $product->image_url }}"
-                         id="main-image"
-                         alt="{{ $product->name }}">
+                    @if($product->video_url)
+                        <video id="main-video" controls controlsList="nodownload">
+                            <source src="{{ asset('storage/' . $product->video_url) }}" type="video/mp4">
+                        </video>
+                    @endif
+
+                    <img src="{{ $product->image_url }}" id="main-image" alt="{{ $product->name }}">
 
                     @if($product->has_discount)
-                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 fs-6 px-3 py-2 shadow-sm">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 fs-6 px-3 py-2 shadow-sm" style="z-index: 25;">
                             -{{ $product->discount_percentage }}%
                         </span>
                     @endif
 
-                    @if($product->images->count() > 1)
+                    @if($product->images->count() > 1 || $product->video_url)
                         <button class="nav-arrow nav-prev" onclick="changeMainImage(-1)">‹</button>
                         <button class="nav-arrow nav-next" onclick="changeMainImage(1)">›</button>
                     @endif
                 </div>
 
-                @if($product->images->count() > 1)
-                    <div class="card-body bg-light border-top">
-                        <div class="thumbnail-scroll">
-                            @foreach($product->images as $index => $image)
-                                <img src="{{ asset('storage/' . $image->image_path) }}"
-                                     class="thumbnail-img {{ $loop->first ? 'active' : '' }}"
-                                     data-index="{{ $index }}"
-                                     onclick="setMainImage({{ $index }})">
-                            @endforeach
-                        </div>
+                <div class="card-body bg-light border-top">
+                    <div class="thumbnail-scroll">
+                        @if($product->video_url)
+                            <div class="thumbnail-img bg-dark active" id="thumb-video" onclick="setMainVideo()">
+                                <i class="bi bi-play-circle-fill text-white fs-2"></i>
+                            </div>
+                        @endif
+
+                        @foreach($product->images as $index => $image)
+                            <img src="{{ asset('storage/' . $image->image_path) }}"
+                                 class="thumbnail-img {{ (!$product->video_url && $loop->first) ? 'active' : '' }}"
+                                 data-index="{{ $index }}"
+                                 onclick="setMainImage({{ $index }})">
+                        @endforeach
                     </div>
-                @endif
+                </div>
             </div>
         </div>
 
@@ -170,6 +181,7 @@
                         </div>
                     </div>
 
+                    {{-- Status Stok --}}
                     <div class="mb-4">
                         @if($product->stock > 10)
                             <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
@@ -186,49 +198,43 @@
                         @endif
                     </div>
 
-                    {{-- Quantity + Action Buttons --}}
+                    {{-- Actions --}}
                     <div class="mb-4">
                         <label class="form-label fw-bold small text-muted">Jumlah</label>
                         <div class="input-group shadow-sm mb-3" style="width: 140px;">
-                            <button type="button" class="btn btn-outline-secondary border-end-0" onclick="decrementQty()">-</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="decrementQty()">-</button>
                             <input type="number" id="quantity-display" value="1" min="1" max="{{ $product->stock }}"
                                    class="form-control text-center fw-bold border-0" readonly>
-                            <button type="button" class="btn btn-outline-secondary border-start-0" onclick="incrementQty()">+</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="incrementQty()">+</button>
                         </div>
 
                         <div class="row g-3">
-                            <!-- Tambah ke Keranjang -->
                             <div class="col-12 col-md-6">
                                 <form action="{{ route('cart.add') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                                     <input type="hidden" name="quantity" id="quantity-cart" value="1">
-                                    <button type="submit" class="btn btn-outline-biru-steel w-100 fw-bold shadow-sm"
-                                            @if($product->stock == 0) disabled @endif>
-                                        <i class="bi bi-cart-plus me-2"></i> Tambah Keranjang
+                                    <button type="submit" class="btn btn-outline-biru-steel w-100 fw-bold shadow-sm" @if($product->stock == 0) disabled @endif>
+                                        <i class="bi bi-cart-plus me-2"></i> Keranjang
                                     </button>
                                 </form>
                             </div>
-
-                            <!-- Checkout Langsung (Buy Now) -->
                             <div class="col-12 col-md-6">
                                 <form action="{{ route('checkout.direct') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                                     <input type="hidden" name="quantity" id="quantity-direct" value="1">
-                                    <button type="submit" class="btn btn-biru-steel w-100 fw-bold shadow-sm"
-                                            @if($product->stock == 0) disabled @endif>
-                                        <i class="bi bi-credit-card-2-front me-2"></i> Checkout Sekarang
+                                    <button type="submit" class="btn btn-biru-steel w-100 fw-bold shadow-sm" @if($product->stock == 0) disabled @endif>
+                                        <i class="bi bi-credit-card-2-front me-2"></i> Beli Sekarang
                                     </button>
                                 </form>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Wishlist --}}
+                    {{-- Tombol Wishlist --}}
                     @auth
-                        <button type="button"
-                                onclick="toggleWishlist({{ $product->id }})"
+                        <button type="button" onclick="toggleWishlist({{ $product->id }})"
                                 class="btn btn-outline-danger w-100 mb-4 wishlist-btn-{{ $product->id }} border-2">
                             <i class="bi {{ auth()->user()->hasInWishlist($product) ? 'bi-heart-fill' : 'bi-heart' }} me-2"></i>
                             {{ auth()->user()->hasInWishlist($product) ? 'Hapus dari Wishlist' : 'Simpan ke Wishlist' }}
@@ -237,32 +243,16 @@
 
                     @guest
                         <div class="alert alert-info mb-4 py-3 text-center">
-                            <i class="bi bi-info-circle me-2"></i>
                             <strong>Login dulu</strong> untuk belanja atau wishlist!
-                            <a href="{{ route('login') }}" class="btn btn-biru-steel btn-sm ms-3">Login Sekarang</a>
+                            <a href="{{ route('login') }}" class="btn btn-biru-steel btn-sm ms-3">Login</a>
                         </div>
                     @endguest
 
-                    <hr class="my-4" style="border-style: dashed;">
+                    <hr class="my-4">
 
                     <div class="mb-4">
                         <h6 class="fw-bold mb-2">Deskripsi Produk</h6>
-                        <p class="text-muted lh-base" style="font-size: 15px;">
-                            {!! nl2br(e($product->description)) !!}
-                        </p>
-                    </div>
-
-                    <div class="row g-2 text-muted small">
-                        <div class="col-6">
-                            <div class="p-2 border rounded bg-light">
-                                <i class="bi bi-box me-2 text-biru-steel"></i> Berat: {{ $product->weight }} gr
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-2 border rounded bg-light">
-                                <i class="bi bi-tag me-2 text-biru-steel"></i> SKU: {{ $product->id + 1000 }}
-                            </div>
-                        </div>
+                        <p class="text-muted lh-base">{!! nl2br(e($product->description)) !!}</p>
                     </div>
                 </div>
             </div>
@@ -277,29 +267,45 @@
     })->toArray());
 
     let currentIndex = 0;
+    let isVideoMode = {{ $product->video_url ? 'true' : 'false' }};
+    const mainImg = document.getElementById('main-image');
+    const mainVid = document.getElementById('main-video');
 
-    function updateMainImage() {
-        const mainImg = document.getElementById('main-image');
-        mainImg.style.opacity = '0';
-        setTimeout(() => {
-            mainImg.src = images[currentIndex];
-            mainImg.style.opacity = '1';
-        }, 300);
-
-        document.querySelectorAll('.thumbnail-img').forEach((thumb, i) => {
-            thumb.classList.toggle('active', i === currentIndex);
-        });
-    }
-
-    function changeMainImage(direction) {
-        if (images.length <= 1) return;
-        currentIndex = (currentIndex + direction + images.length) % images.length;
-        updateMainImage();
+    function setMainVideo() {
+        if (!mainVid) return;
+        isVideoMode = true;
+        mainImg.style.display = 'none';
+        mainVid.style.display = 'block';
+        document.querySelectorAll('.thumbnail-img').forEach(t => t.classList.remove('active'));
+        document.getElementById('thumb-video').classList.add('active');
     }
 
     function setMainImage(index) {
+        isVideoMode = false;
         currentIndex = index;
-        updateMainImage();
+        if (mainVid) { mainVid.pause(); mainVid.style.display = 'none'; }
+        mainImg.style.display = 'block';
+        mainImg.src = images[currentIndex];
+        document.querySelectorAll('.thumbnail-img').forEach(thumb => {
+            thumb.classList.toggle('active', thumb.getAttribute('data-index') == index);
+        });
+        if(document.getElementById('thumb-video')) document.getElementById('thumb-video').classList.remove('active');
+    }
+
+    function changeMainImage(direction) {
+        const hasVideo = {{ $product->video_url ? 'true' : 'false' }};
+        if (isVideoMode) {
+            setMainImage(direction > 0 ? 0 : images.length - 1);
+        } else {
+            let nextIndex = currentIndex + direction;
+            if (nextIndex >= images.length) {
+                hasVideo ? setMainVideo() : setMainImage(0);
+            } else if (nextIndex < 0) {
+                hasVideo ? setMainVideo() : setMainImage(images.length - 1);
+            } else {
+                setMainImage(nextIndex);
+            }
+        }
     }
 
     function updateQuantity(value) {
@@ -310,18 +316,15 @@
 
     function incrementQty() {
         const display = document.getElementById('quantity-display');
-        const max = parseInt(display.max);
-        if (parseInt(display.value) < max) {
-            updateQuantity(parseInt(display.value) + 1);
-        }
+        if (parseInt(display.value) < parseInt(display.max)) updateQuantity(parseInt(display.value) + 1);
     }
 
     function decrementQty() {
         const display = document.getElementById('quantity-display');
-        if (parseInt(display.value) > 1) {
-            updateQuantity(parseInt(display.value) - 1);
-        }
+        if (parseInt(display.value) > 1) updateQuantity(parseInt(display.value) - 1);
     }
+
+    window.onload = () => { if ({{ $product->video_url ? 'true' : 'false' }}) setMainVideo(); };
 </script>
 @endpush
 @endsection

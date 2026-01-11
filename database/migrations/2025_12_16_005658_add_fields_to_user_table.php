@@ -1,5 +1,4 @@
 <?php
-// database/migrations/xxxx_add_fields_to_users_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,44 +8,65 @@ return new class extends Migration
 {
     /**
      * Jalankan migration.
-     * Method ini dipanggil saat `php artisan migrate`
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            // Kita gunakan pengecekan 'hasColumn' agar tidak terjadi error Duplicate Column
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->enum('role', ['customer', 'admin'])
+                    ->default('customer')
+                    ->after('password');
+            }
 
-            $table->enum('role', ['customer', 'admin'])
-                ->default('customer')
-                ->after('password'); // Posisi kolom setelah password
+            if (!Schema::hasColumn('users', 'avatar')) {
+                $table->string('avatar')
+                    ->nullable()
+                    ->after('role');
+            }
 
-            $table->string('avatar')
-                ->nullable()
-                ->after('role');
+            // TAMBAHKAN KOLOM BANNER DI SINI
+            if (!Schema::hasColumn('users', 'banner')) {
+                $table->string('banner')
+                    ->nullable()
+                    ->after('avatar');
+            }
 
+            if (!Schema::hasColumn('users', 'google_id')) {
+                $table->string('google_id')
+                    ->nullable()
+                    ->unique()
+                    ->after('banner');
+            }
 
-            $table->string('google_id')
-                ->nullable()
-                ->unique()
-                ->after('avatar');
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone', 20)
+                    ->nullable()
+                    ->after('google_id');
+            }
 
-            
-            $table->string('phone', 20)
-                ->nullable()
-                ->after('google_id');
-
-            
-            $table->text('address')
-                ->nullable()
-                ->after('phone');
+            if (!Schema::hasColumn('users', 'address')) {
+                $table->text('address')
+                    ->nullable()
+                    ->after('phone');
+            }
         });
     }
 
-
+    /**
+     * Mundurkan migration.
+     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Hapus array kolom sekaligus
-            $table->dropColumn(['role', 'avatar', 'google_id', 'phone', 'address']);
+            // Hapus semua kolom yang ditambahkan jika ada
+            $columns = ['role', 'avatar', 'banner', 'google_id', 'phone', 'address'];
+            
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('users', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 };

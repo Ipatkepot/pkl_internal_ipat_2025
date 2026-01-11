@@ -1,188 +1,330 @@
 @extends('layouts.app')
 
-@section('title', 'GadgetMurah - Profil ' . ($user->name ?? 'User'))
+@section('title', 'Profil Eksklusif - ' . ($user->name ?? 'User'))
 
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-    /* Header Background */
-    .profile-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        height: 160px;
-        border-radius: 20px 20px 0 0;
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.6);
+        --accent-steel: #3B6181; 
+        --dark-steel: #2d4a63;
+        --text-main: #1e293b;
     }
 
-    /* Container Kartu Utama */
-    .card-profile {
-        border: 1px solid rgba(102, 126, 234, 0.2); /* Border kartu tipis berwarna biru muda */
-        border-radius: 20px;
+    body {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+        background-attachment: fixed;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Back Button Styling */
+    .back-nav {
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+    .btn-back-glass {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: var(--accent-steel);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back-glass:hover {
+        background: var(--accent-steel);
+        color: #fff;
+        transform: translateX(-5px);
+        box-shadow: 0 4px 15px rgba(59, 97, 129, 0.2);
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(59, 97, 129, 0.05);
+    }
+
+    /* Banner Header */
+    .profile-header-box {
+        position: relative;
+        background: #fff;
+        border-radius: 30px;
         overflow: hidden;
-        background-color: #ffffff;
+        margin-bottom: 2rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
     }
 
-    /* CUSTOM BORDER PROFILE IMAGE */
-    .profile-img-wrapper {
-        margin-top: -80px;
+    .profile-banner {
+        height: 220px;
+        width: 100%;
+        background: var(--accent-steel);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .banner-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info-row {
+        padding: 0 40px 30px 40px;
+        display: flex;
+        align-items: flex-end;
+        margin-top: -75px;
         position: relative;
         z-index: 2;
-        display: inline-block;
     }
 
-    .profile-img-container {
-        padding: 6px; /* Jarak untuk border luar */
-        background: linear-gradient(135deg, #667eea, #764ba2); /* Border gradasi luar */
-        border-radius: 50%;
-        display: inline-block;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    .avatar-container {
+        position: relative;
+        flex-shrink: 0;
     }
 
-    .profile-img {
-        width: 140px;
-        height: 140px;
+    .avatar-img {
+        width: 150px;
+        height: 150px;
         object-fit: cover;
-        border: 4px solid #fff; /* Border putih dalam */
+        border: 6px solid #fff;
         border-radius: 50%;
-        background-color: #fff;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        background: #fff;
     }
 
-    /* Styling Teks dan Badge */
+    .profile-details {
+        flex-grow: 1;
+        padding-left: 25px;
+        padding-bottom: 15px;
+    }
+
+    .profile-actions {
+        padding-bottom: 20px;
+    }
+
+    /* Info Boxes */
     .info-label {
         font-size: 0.75rem;
+        font-weight: 800;
+        color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 700;
-        color: #95a5a6;
-    }
-    .info-value {
-        font-size: 1rem;
-        color: #2c3e50;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 2px;
     }
 
-    .btn-edit {
-        border-radius: 50px;
-        padding: 10px 30px;
-        font-weight: 600;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border: none;
-        color: white;
-        transition: all 0.3s;
-    }
-    .btn-edit:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(118, 75, 162, 0.3);
-        color: white;
-    }
-
-    /* Custom Row Border */
-    .info-row {
-        border-bottom: 1px dashed #eee;
-        padding-bottom: 15px;
+    .info-box-item {
+        background: rgba(59, 97, 129, 0.04);
+        border-radius: 15px;
+        padding: 15px 20px;
         margin-bottom: 15px;
+        border: 1px solid rgba(59, 97, 129, 0.05);
+        transition: 0.3s;
     }
-    .info-row:last-child {
-        border-bottom: none;
+
+    .info-box-item:hover {
+        background: rgba(59, 97, 129, 0.08);
+        transform: translateX(5px);
+    }
+
+    /* Button Custom */
+    .btn-edit-custom {
+        background: var(--accent-steel);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(59, 97, 129, 0.2);
+    }
+
+    .btn-edit-custom:hover {
+        background: var(--dark-steel);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 97, 129, 0.3);
+    }
+
+    /* Timeline Styling */
+    .timeline-wrapper {
+        padding-left: 10px;
+    }
+
+    .timeline-entry {
+        position: relative;
+        padding-left: 30px;
+        padding-bottom: 25px;
+        border-left: 2px solid #e2e8f0;
+    }
+
+    .timeline-entry::before {
+        content: '';
+        position: absolute;
+        left: -9px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        border: 3px solid var(--accent-steel);
+        border-radius: 50%;
+    }
+
+    .timeline-entry:last-child {
+        border-left: 2px solid transparent;
+        padding-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+        .profile-info-row {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: -60px;
+            padding: 0 20px 20px 20px;
+        }
+        .profile-details {
+            padding-left: 0;
+            padding-top: 15px;
+        }
+        .avatar-img {
+            width: 120px;
+            height: 120px;
+        }
     }
 </style>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+<div class="container py-4">
+    
+    {{-- Tombol Kembali --}}
+    <div class="back-nav">
+        <a href="javascript:history.back()" class="btn-back-glass">
+            <i class="bi bi-arrow-left"></i> Kembali
+        </a>
+    </div>
+
+    {{-- Header Section --}}
+    <div class="profile-header-box">
+        <div class="profile-banner">
+            @if(isset($user->banner))
+                <img src="{{ asset('storage/' . $user->banner) }}" class="banner-img" alt="Banner">
+            @else
+                <div class="w-100 h-100" style="background: linear-gradient(135deg, #3B6181 0%, #2d4a63 100%);"></div>
+            @endif
+        </div>
+        
+        <div class="profile-info-row">
+            <div class="avatar-container">
+                @if(isset($user->avatar))
+                    <img src="{{ $user->avatar_url }}" class="avatar-img" alt="{{ $user->name }}">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&size=200&background=3B6181&color=fff&bold=true" class="avatar-img" alt="Default Avatar">
+                @endif
+            </div>
             
-            @if(isset($user))
-                <div class="card card-profile shadow-lg">
-                    <div class="profile-header"></div>
-                    
-                    <div class="card-body p-4 pt-0">
-                        <div class="text-center mb-4">
-                            {{-- Wrapper Border Custom --}}
-                            <div class="profile-img-wrapper">
-                                <div class="profile-img-container">
-                                    @if(!empty($user->avatar))
-                                        <img src="{{ $user->avatar_url }}" class="profile-img" alt="{{ $user->name }}">
-                                    @else
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'User') }}&size=150&background=667eea&color=fff&font-size=0.35" 
-                                             class="profile-img" alt="Default Avatar">
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            <h2 class="mt-3 fw-bold mb-1" style="color: #2d3436;">{{ $user->name }}</h2>
-                            <div class="mb-4">
-                                <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(102, 126, 234, 0.1); color: #667eea; border: 1px solid rgba(102, 126, 234, 0.2);">
-                                    <i class="bi bi-patch-check-fill me-1"></i> Member Premium
-                                </span>
-                            </div>
+            <div class="profile-details">
+                <h2 class="fw-800 mb-1" style="font-weight: 800; color: #1e293b; font-family: 'Outfit';">{{ $user->name }}</h2>
+                <p class="text-muted mb-0 small">
+                    <i class="bi bi-calendar3 me-1"></i> Terdaftar sejak {{ $user->created_at->translatedFormat('d F Y') }}
+                </p>
+            </div>
 
-                            @auth
-                                @if(auth()->id() === $user->id)
-                                    <a href="{{ route('profile.edit') }}" class="btn btn-edit">
-                                        <i class="bi bi-pencil-square me-2"></i> Edit Profil Saya
-                                    </a>
-                                @endif
-                            @endauth
-                        </div>
+            <div class="profile-actions">
+                @auth
+                    @if(auth()->id() === $user->id)
+                        <a href="{{ route('profile.edit') }}" class="btn btn-edit-custom">
+                            <i class="bi bi-pencil-square me-2"></i> Edit Profil
+                        </a>
+                    @endif
+                @endauth
+            </div>
+        </div>
+    </div>
 
-                        {{-- Section Data --}}
-                        <div class="card border-0 bg-light rounded-4 p-4 mt-2">
-                            <div class="row">
-                                {{-- Email --}}
-                                <div class="col-md-6 info-row">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-primary">
-                                            <i class="bi bi-envelope fs-4"></i>
-                                        </div>
-                                        <div>
-                                            <div class="info-label">Alamat Email</div>
-                                            <div class="info-value fw-bold">{{ $user->email }}</div>
-                                        </div>
-                                    </div>
-                                </div>
+    {{-- Content Section --}}
+    <div class="row g-4">
+        {{-- Left Column: Info --}}
+        <div class="col-lg-5">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold mb-4" style="color: var(--accent-steel)">
+                    <i class="bi bi-person-circle me-2"></i> Informasi Dasar
+                </h5>
+                
+                <div class="info-box-item">
+                    <span class="info-label">Email</span>
+                    <div class="fw-600">{{ $user->email }}</div>
+                </div>
 
-                                {{-- Bergabung --}}
-                                <div class="col-md-6 info-row">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-primary">
-                                            <i class="bi bi-calendar-check fs-4"></i>
-                                        </div>
-                                        <div>
-                                            <div class="info-label">Member Sejak</div>
-                                            <div class="info-value fw-bold">
-                                                {{ $user->created_at ? $user->created_at->format('d M Y') : '-' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Role Admin --}}
-                                @if($user->is_admin)
-                                <div class="col-md-6 info-row">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-success">
-                                            <i class="bi bi-shield-lock fs-4"></i>
-                                        </div>
-                                        <div>
-                                            <div class="info-label">Hak Akses</div>
-                                            <div class="info-value text-success fw-bold">Administrator</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
+                <div class="info-box-item">
+                    <span class="info-label">Nomor Telepon</span>
+                    <div class="fw-600 {{ $user->phone ? 'text-primary' : 'text-muted italic small' }}">
+                        {{ $user->phone ?? 'Belum ada nomor telepon' }}
                     </div>
                 </div>
-            @else
-                <div class="alert alert-danger rounded-4 shadow-sm text-center">
-                    <i class="bi bi-x-circle fs-1 d-block mb-2"></i>
-                    Ups! Data user tidak ditemukan.
-                </div>
-            @endif
 
-            <div class="mt-4 text-center">
-                <a href="{{ route('home') }}" class="btn btn-link text-decoration-none text-muted">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Dashboard
-                </a>
+                <div class="info-box-item">
+                    <span class="info-label">Alamat Domisili</span>
+                    <div class="small {{ $user->address ? 'text-dark' : 'text-muted italic' }}">
+                        {{ $user->address ?? 'Alamat belum diatur.' }}
+                    </div>
+                </div>
+
+                @if($user->role === 'admin')
+                <div class="info-box-item border-warning" style="background: rgba(255, 193, 7, 0.05);">
+                    <span class="info-label text-warning">Status Akun</span>
+                    <div class="fw-bold text-warning"><i class="bi bi-patch-check-fill me-1"></i> Administrator</div>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Right Column: Activity --}}
+        <div class="col-lg-7">
+            <div class="glass-card p-4 h-100">
+                <h5 class="fw-bold mb-4" style="color: var(--accent-steel)">
+                    <i class="bi bi-clock-history me-2"></i> Log Aktivitas
+                </h5>
+
+                <div class="timeline-wrapper">
+                    {{-- Simulasi Pesanan --}}
+                    @if(isset($user->orders) && $user->orders->count() > 0)
+                        @foreach($user->orders->take(3) as $order)
+                        <div class="timeline-entry">
+                            <div class="fw-bold">Pemesanan #{{ $order->id }}</div>
+                            <div class="text-muted small">Status: <span class="badge bg-light text-dark border">{{ ucfirst($order->status) }}</span> • {{ $order->created_at->diffForHumans() }}</div>
+                        </div>
+                        @endforeach
+                    @endif
+
+                    {{-- Info Update Profil --}}
+                    @if($user->updated_at != $user->created_at)
+                        <div class="timeline-entry">
+                            <div class="fw-bold">Pembaruan Profil Visual</div>
+                            <div class="text-muted small">Berhasil memperbarui informasi pada {{ $user->updated_at->translatedFormat('d M Y, H:i') }}</div>
+                        </div>
+                    @endif
+
+                    {{-- Registration Info --}}
+                    <div class="timeline-entry">
+                        <div class="fw-bold text-primary">Bergabung dengan Komunitas</div>
+                        <div class="text-muted small">Akun resmi diverifikasi pada {{ $user->created_at->translatedFormat('d F Y') }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

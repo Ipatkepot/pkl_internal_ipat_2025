@@ -27,7 +27,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- Vite CSS --}}
+    {{-- Vite CSS & JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -45,13 +45,16 @@
 </head>
 
 <body>
+    {{-- 1. LOADER COMPONENT (Muncul pertama kali saat body render) --}}
+    <x-loader />
+
     {{-- ============================================
          NAVBAR
          ============================================ --}}
     @include('partials.navbar')
 
     {{-- ============================================
-         FLASH MESSAGES (PENTING: Pastikan partial ini bersih dari teks manual)
+         FLASH MESSAGES
          ============================================ --}}
     <div class="container mt-4">
         @include('partials.flash-messages')
@@ -84,7 +87,6 @@
          * Fungsi Global untuk Toggle Wishlist (AJAX)
          */
         async function toggleWishlist(productId) {
-            // Cek Guest melalui Laravel Blade Helper
             @guest
                 window.location.href = "{{ route('login') }}";
                 return;
@@ -116,7 +118,6 @@
                     updateWishlistIcon(productId, false);
                 }
 
-                // Update Angka Badge Wishlist di Navbar
                 const badge = document.getElementById("wishlist-count");
                 if (badge && data.count !== undefined) {
                     badge.innerText = data.count;
@@ -128,11 +129,7 @@
             }
         }
 
-        /**
-         * Update Tampilan Ikon Hati secara Dinamis
-         */
         function updateWishlistIcon(productId, isAdded) {
-            // Mencari berdasarkan ID atau Class untuk fleksibilitas di card/detail
             const icons = document.querySelectorAll('#wishlist-icon-' + productId + ', .wishlist-btn-' + productId + ' i');
             
             icons.forEach(icon => {

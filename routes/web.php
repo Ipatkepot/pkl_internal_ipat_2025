@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.destroy');
+        Route::delete('/banner', [ProfileController::class, 'deleteBanner'])->name('banner.destroy');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
         Route::get('/{user}', [ProfileController::class, 'show'])->name('show');
     });
