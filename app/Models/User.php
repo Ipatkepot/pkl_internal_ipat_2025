@@ -1,17 +1,20 @@
 <?php
 namespace App\Models;
 
+use App\Models\Cart;
 use App\Models\Order;
-use App\Models\Product;
+use App\Models\Product; // Ditambahkan agar relasi cart() tidak error
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Pastikan ini ada
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-// Pastikan ini ada
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Atribut yang dapat diisi (mass assignable).
+     */
     protected $fillable = [
         'name',
         'email',
@@ -23,11 +26,17 @@ class User extends Authenticatable
         'address',
     ];
 
+    /**
+     * Atribut yang disembunyikan untuk serialisasi.
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Casting atribut.
+     */
     protected function casts(): array
     {
         return [
@@ -36,7 +45,11 @@ class User extends Authenticatable
         ];
     }
 
-    // Accessor untuk URL Avatar
+    // --- ACCESSORS ---
+
+    /**
+     * Accessor untuk mendapatkan URL Avatar yang valid.
+     */
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar && ! str_starts_with($this->avatar, 'http')) {
@@ -51,7 +64,9 @@ class User extends Authenticatable
         return "https://www.gravatar.com/avatar/{$hash}?d=mp&s=200";
     }
 
-    // Accessor untuk Inisial
+    /**
+     * Accessor untuk mendapatkan inisial nama (maksimal 2 huruf).
+     */
     public function getInitialsAttribute(): string
     {
         $words    = explode(' ', $this->name);
@@ -62,30 +77,46 @@ class User extends Authenticatable
         return substr($initials, 0, 2);
     }
 
-    // Relasi & Helper Wishlist
+    // --- RELATIONS & HELPERS ---
+
+    /**
+     * Relasi Many-to-Many ke Product (Wishlist).
+     * Pastikan panggil $user->wishlists() di Controller/View.
+     */
     public function wishlists()
     {
         return $this->belongsToMany(Product::class, 'wishlists')->withTimestamps();
     }
 
+    /**
+     * Helper untuk mengecek apakah produk ada di wishlist user.
+     */
     public function hasInWishlist(Product $product)
     {
         return $this->wishlists()->where('product_id', $product->id)->exists();
     }
 
-    // Check Admin
+    /**
+     * Cek apakah user adalah admin.
+     */
     public function isAdmin()
     {
         return $this->role === 'admin';
     }
 
-    // Relasi Order
+    /**
+     * Relasi One-to-Many ke Order.
+     */
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Relasi One-to-One ke Cart.
+     */
     public function cart()
-{
-    return $this->hasOne(Cart::class);
-}
+    {
+        return $this->hasOne(Cart::class);
+    }
 }

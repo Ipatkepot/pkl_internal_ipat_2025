@@ -1,165 +1,182 @@
-{{-- resources/views/orders/index.blade.php --}}
-
 @extends('layouts.app')
 
-@section('title', 'GadgetMurah - Riwayat Transaksi')
+@section('title', 'Riwayat Transaksi - GadgetMurah')
 
 @section('content')
 <style>
-    /* Sinkronisasi Tema Biru Steel */
     :root {
         --biru-steel: #3B6181;
-        --biru-steel-soft: #f0f5f9;
+        --biru-steel-soft: #f0f4f8;
         --biru-steel-hover: #2d4a63;
     }
 
-    body { background-color: #f8f9fa; }
+    body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
 
+    /* Header Styling */
+    .page-header {
+        background: linear-gradient(135deg, var(--biru-steel) 0%, #4a7a9e 100%);
+        border-radius: 24px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(59, 97, 129, 0.2);
+    }
+
+    /* Order Card Styling */
     .order-card {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        transition: all 0.2s ease;
+        border: none;
+        border-radius: 20px;
         background: #fff;
-        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .order-card:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+    }
+
+    .order-header {
+        padding: 15px 25px;
+        background-color: #fafbfc;
+        border-bottom: 1px solid #f1f5f9;
+        border-radius: 20px 20px 0 0;
+    }
+
+    /* Badge Modernization */
+    .status-badge {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 6px 14px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .status-processing { background: #f0f9ff; color: #0369a1; border: 1px solid #e0f2fe; }
+    .status-shipped { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+    .status-delivered { background: var(--biru-steel-soft); color: var(--biru-steel); border: 1px solid #e2e8f0; }
+    .status-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+
+    /* Product Thumbnail */
+    .product-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 1px solid #f1f5f9;
+    }
+
+    .btn-detail {
+        background-color: white;
+        color: var(--biru-steel);
+        border: 2px solid var(--biru-steel-soft);
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: 0.3s;
+    }
+
+    .btn-detail:hover {
+        background-color: var(--biru-steel);
+        color: white;
         border-color: var(--biru-steel);
     }
 
-    .status-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 5px 10px;
-        border-radius: 6px;
-        text-transform: uppercase;
-    }
-
-    /* Status Colors */
-    .status-pending { background: #fff3e0; color: #ef6c00; }
-    .status-processing { background: #e3f2fd; color: #1976d2; }
-    .status-shipped { background: #e0f2f1; color: #00796b; }
-    .status-delivered { background: var(--biru-steel-soft); color: var(--biru-steel); }
-    .status-cancelled { background: #ffebee; color: #c62828; }
-
-    .btn-biru-outline {
-        border: 1.5px solid var(--biru-steel);
+    /* Pagination Styling */
+    .pagination { gap: 5px; }
+    .page-item .page-link {
+        border-radius: 10px;
         color: var(--biru-steel);
-        font-weight: 700;
-        transition: 0.2s;
-        border-radius: 8px;
-    }
-
-    .btn-biru-outline:hover {
-        background: var(--biru-steel);
-        color: white;
-    }
-
-    .btn-biru-steel {
-        background-color: var(--biru-steel);
-        color: white;
-        font-weight: 700;
-        border-radius: 8px;
         border: none;
+        font-weight: 600;
+        margin: 0 2px;
     }
-
-    .btn-biru-steel:hover {
-        background-color: var(--biru-steel-hover);
-        color: white;
-    }
-
-    .text-biru-steel {
-        color: var(--biru-steel) !important;
-    }
-
-    .object-fit-cover {
-        object-fit: cover;
+    .page-item.active .page-link {
+        background-color: var(--biru-steel);
+        box-shadow: 0 4px 10px rgba(59, 97, 129, 0.3);
     }
 </style>
 
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
+    {{-- Header Section --}}
+    <div class="page-header d-flex align-items-center justify-content-between">
+        <div>
+            <h2 class="fw-800 mb-1" style="font-weight: 800; letter-spacing: -1px;">Pesanan Saya</h2>
+            <p class="mb-0 opacity-75">Kelola dan pantau semua transaksi belanja Anda</p>
+        </div>
+        <div class="d-none d-md-block">
+            <i class="bi bi-bag-check fs-1 opacity-50"></i>
+        </div>
+    </div>
 
-            {{-- Title --}}
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h4 class="fw-bold text-dark mb-0">Riwayat Transaksi</h4>
-                <div class="text-muted small">Menampilkan semua pesanan Anda</div>
-            </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
 
             @if($orders->isEmpty())
-                {{-- Empty State --}}
-                <div class="text-center py-5 bg-white rounded-4 border shadow-sm">
-                    <div class="mb-4">
-                        <i class="bi bi-receipt text-muted opacity-25" style="font-size: 100px;"></i>
-                    </div>
-                    <h5 class="fw-bold">Belum ada transaksi, nih!</h5>
-                    <p class="text-muted px-4">Ayo mulai belanja dan temukan produk impian Anda di katalog kami.</p>
-                    <a href="{{ route('catalog.index') }}" class="btn btn-biru-steel px-5 py-2 mt-2 shadow-sm">
-                        Mulai Belanja Sekarang
+                <div class="text-center py-5 bg-white rounded-5 shadow-sm border">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" alt="Empty" width="120" class="mb-4 opacity-50">
+                    <h4 class="fw-bold">Belum Ada Transaksi</h4>
+                    <p class="text-muted mb-4">Sepertinya Anda belum melakukan pemesanan apapun.<br>Yuk, cari gadget impianmu sekarang!</p>
+                    <a href="{{ route('catalog.index') }}" class="btn btn-primary px-5 py-3 rounded-pill fw-bold" style="background: var(--biru-steel); border: none;">
+                        Mulai Belanja
                     </a>
                 </div>
             @else
-                {{-- Loop Orders --}}
                 @foreach($orders as $order)
-                    <div class="order-card mb-4 shadow-sm">
-                        <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-light">
+                    <div class="card order-card mb-4 shadow-sm">
+                        {{-- Top Info --}}
+                        <div class="order-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="bg-white p-2 rounded border shadow-sm d-none d-md-block">
-                                    <i class="bi bi-bag-check-fill text-biru-steel"></i>
+                                <div class="bg-white p-2 rounded-3 border shadow-sm">
+                                    <i class="bi bi-shop text-biru-steel"></i>
                                 </div>
                                 <div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold small">Belanja</span>
-                                        <span class="text-muted small border-start ps-2">{{ $order->created_at->format('d M Y') }}</span>
-                                    </div>
-                                    <div class="mt-1 d-md-none">
-                                         <span class="text-muted small">#{{ $order->order_number }}</span>
-                                    </div>
+                                    <span class="fw-800 d-block text-dark" style="font-size: 14px;">Belanja</span>
+                                    <small class="text-muted">{{ $order->created_at->translatedFormat('d M Y') }}</small>
                                 </div>
-
                                 @php
                                     $statusSlug = strtolower($order->status);
                                     $statusLabel = [
                                         'pending' => 'Menunggu Pembayaran',
-                                        'processing' => 'Sedang Diproses',
-                                        'shipped' => 'Dalam Pengiriman',
-                                        'delivered' => 'Pesanan Selesai',
+                                        'processing' => 'Diproses',
+                                        'shipped' => 'Dikirim',
+                                        'delivered' => 'Selesai',
                                         'cancelled' => 'Dibatalkan',
                                     ];
                                 @endphp
-                                <span class="status-badge status-{{ $statusSlug }} ms-2">
+                                <span class="status-badge status-{{ $statusSlug }}">
                                     {{ $statusLabel[$statusSlug] ?? $order->status }}
                                 </span>
                             </div>
-                            <span class="text-muted small d-none d-md-block fw-medium">#{{ $order->order_number }}</span>
+                            <div class="text-md-end">
+                                <small class="text-muted d-block" style="font-size: 11px;">NOMOR PESANAN</small>
+                                <span class="fw-bold text-dark">#{{ $order->order_number }}</span>
+                            </div>
                         </div>
 
-                        <div class="p-4">
-                            <div class="row align-items-center g-3">
-                                {{-- Produk Info --}}
-                                <div class="col-md-7">
+                        {{-- Card Body --}}
+                        <div class="card-body p-4">
+                            <div class="row align-items-center g-4">
+                                {{-- Produk Thumbnail & Info --}}
+                                <div class="col-lg-6 col-md-12">
                                     @if($order->items->count() > 0)
                                         @php $firstItem = $order->items->first(); @endphp
                                         <div class="d-flex align-items-center">
-                                            <div class="rounded-3 border overflow-hidden me-3 shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
-                                                {{-- PERBAIKAN DI SINI: Menggunakan variabel $firstItem dan helper asset --}}
-                                                <img src="{{ $firstItem->product && $firstItem->product->image ? asset('storage/' . $firstItem->product->image) : 'https://placehold.co/70x70?text=No+Img' }}" 
-                                                     class="w-100 h-100 object-fit-cover" 
-                                                     onerror="this.src='https://placehold.co/70x70?text=Error'">
-                                            </div>
+                                            <img src="{{ $firstItem->product && $firstItem->product->image ? asset('storage/' . $firstItem->product->image) : 'https://placehold.co/80x80?text=Gadget' }}" 
+                                                 class="product-thumb me-4 shadow-sm">
                                             <div class="overflow-hidden">
-                                                <h6 class="fw-bold mb-1 text-truncate text-dark" style="max-width: 100%;">
+                                                <h6 class="fw-bold text-dark text-truncate mb-1" style="max-width: 300px;">
                                                     {{ $firstItem->product_name }}
                                                 </h6>
-                                                <div class="text-muted small">
-                                                    {{ $firstItem->quantity }} barang x <span class="text-dark fw-medium">Rp {{ number_format($firstItem->price, 0, ',', '.') }}</span>
-                                                </div>
+                                                <p class="text-muted small mb-0">
+                                                    {{ $firstItem->quantity }} Barang x <span class="fw-bold text-dark">Rp {{ number_format($firstItem->price, 0, ',', '.') }}</span>
+                                                </p>
                                                 @if($order->items->count() > 1)
-                                                    <div class="mt-1">
-                                                        <span class="badge bg-light text-muted border fw-normal" style="font-size: 10px;">
-                                                            +{{ $order->items->count() - 1 }} produk lainnya
+                                                    <div class="mt-2">
+                                                        <span class="badge bg-light text-muted border-0 fw-normal py-1 px-2" style="font-size: 11px;">
+                                                            +{{ $order->items->count() - 1 }} Produk Lainnya
                                                         </span>
                                                     </div>
                                                 @endif
@@ -168,35 +185,37 @@
                                     @endif
                                 </div>
 
-                                {{-- Total Harga --}}
-                                <div class="col-md-3 border-start-md ps-md-4">
-                                    <div class="ps-md-3 border-start ps-3">
+                                {{-- Total & Action --}}
+                                <div class="col-lg-3 col-md-6 text-lg-center border-start-lg">
+                                    <div class="ps-lg-4 border-start-md">
                                         <small class="text-muted d-block mb-1">Total Belanja</small>
-                                        <span class="fw-bold fs-5 text-biru-steel">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                                        <h5 class="fw-800 text-biru-steel mb-0">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</h5>
                                     </div>
                                 </div>
 
-                                {{-- Aksi --}}
-                                <div class="col-md-2 text-md-end">
-                                    <a href="{{ route('orders.show', $order) }}" class="btn btn-biru-outline btn-sm w-100 py-2 shadow-sm">
-                                        Lihat Detail
-                                    </a>
+                                <div class="col-lg-3 col-md-6 text-md-end">
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-detail">
+                                            Detail Pesanan
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @endforeach
 
-                {{-- Pagination --}}
-                <div class="mt-5 d-flex flex-column align-items-center gap-4">
-                    <div class="custom-pagination">
-                        {{ $orders->links() }}
-                    </div>
-                    <a href="{{ url('/') }}" class="text-decoration-none fw-bold text-biru-steel d-flex align-items-center gap-2 border-bottom border-2 border-transparent hover-border-biru">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Beranda
-                    </a>
+                {{-- Custom Pagination --}}
+                <div class="d-flex justify-content-center mt-5">
+                    {{ $orders->links('pagination::bootstrap-5') }}
                 </div>
             @endif
+
+            <div class="text-center mt-4">
+                <a href="{{ url('/') }}" class="text-decoration-none text-muted small fw-bold hover-biru">
+                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
+                </a>
+            </div>
         </div>
     </div>
 </div>

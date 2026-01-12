@@ -4,158 +4,112 @@
 
 @section('content')
 
-{{-- SWIPER CDN --}}
+{{-- External Resources --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
     :root {
         --tkp-primary: #3B6181;
         --tkp-primary-dark: #2d4a63;
         --tkp-primary-light: #f0f5f9;
-        --text-dark: #1a1d23;
+        --tkp-accent: #FF8000;
+        --text-dark: #0f172a;
         --text-muted: #64748b;
-        --bg-body: #ffffff;
+        --bg-soft: #f8fafc;
+        --transition-standard: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
     body {
-        background-color: var(--bg-body);
+        background-color: #ffffff;
         color: var(--text-dark);
         font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow-x: hidden;
     }
 
-    /* ===== HERO BANNER ===== */
-    .hero-section {
-        padding-top: 24px;
-    }
-
+    /* ===== HERO SECTION UPGRADE ===== */
+    .hero-section { padding: 20px 0; }
     .heroSwiper {
-        border-radius: 24px;
-        height: 370px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-radius: 40px;
+        height: 390px;
+        box-shadow: 0 25px 50px -12px rgba(59, 97, 129, 0.15);
+        overflow: hidden;
     }
-
-    .hero-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+    .hero-img { 
+        width: 100%; height: 100%; object-fit: cover; 
+        transition: transform 8s ease;
     }
+    .swiper-slide-active .hero-img { transform: scale(1.08); }
 
-    /* ===== CATEGORY FULL ROUNDED (EDGE TO EDGE) ===== */
+    .swiper-button-next, .swiper-button-prev {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        width: 45px; height: 45px;
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition-standard);
+    }
+    .swiper-button-next:hover, .swiper-button-prev:hover { background: var(--tkp-primary); }
+    .swiper-button-next:after, .swiper-button-prev:after { font-size: 16px; font-weight: 800; }
+    .swiper-pagination-bullet-active { background: var(--tkp-primary) !important; width: 25px !important; border-radius: 5px !important; }
+
+    /* ===== CATEGORY UPGRADE ===== */
     .category-wrapper {
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-align: center;
         text-decoration: none !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        display: block;
+        transition: var(--transition-standard);
     }
 
     .category-icon-box {
-        width: 110px;
-        height: 110px;
-        border-radius: 50% !important;
-        overflow: hidden;
-        border: 3px solid #f1f5f9;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        background: #f8fafc;
+        width: 110px; height: 110px;
+        border-radius: 100px; /* Smooth Squircle */
+        background: var(--bg-soft);
+        margin: 0 auto 15px;
+        display: flex; align-items: center; justify-content: center;
+        transition: var(--transition-standard);
+        position: relative;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     .category-icon-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Gambar full membulat tanpa putih */
-        transition: transform 0.5s ease;
+        width: 60%; height: 60%;
+        object-fit: contain;
+        transition: var(--transition-standard);
     }
 
     .category-wrapper:hover .category-icon-box {
-        transform: translateY(-8px);
-        border-color: var(--tkp-primary);
-        box-shadow: 0 12px 25px rgba(90, 135, 173, 0.377);
+        transform: translateY(-12px) rotate(5deg);
+        background: var(--tkp-primary);
+        box-shadow: 0 15px 30px rgba(59, 97, 129, 0.2);
     }
 
-    .category-wrapper:hover img {
-        transform: scale(1.15);
+    .category-wrapper:hover .category-icon-box img {
+        filter: brightness(0) invert(1);
+        transform: scale(1.1);
     }
 
     .category-name {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-top: 4px;
+        font-size: 0.95rem; font-weight: 700; color: var(--text-dark);
+        margin-bottom: 2px; transition: color 0.3s;
     }
+    .category-wrapper:hover .category-name { color: var(--tkp-primary); }
 
     /* ===== SECTION TITLES ===== */
-    .section-title {
-        font-weight: 800;
-        font-size: 1.6rem;
-        letter-spacing: -0.5px;
-    }
-
-    .title-line {
-        width: 50px;
-        height: 4px;
-        background: var(--tkp-primary);
-        border-radius: 2px;
-        margin: 8px auto 0;
-    }
-
-    /* ===== PROMO BANNER WITH IMAGES ===== */
-    .promo-card {
-        border-radius: 28px;
-        border: none;
-        overflow: hidden;
-        position: relative;
-        min-height: 280px;
-    }
-
-    .promo-content {
-        position: relative;
-        z-index: 2;
-        max-width: 65%;
-    }
-
-    .promo-img-wrapper {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 300px;
-        height: auto;
-        z-index: 1;
-        transition: transform 0.4s ease;
-    }
-    .promo-img-wrappers{
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 200px;
-        height: auto;
-        z-index: 1;
-        transition: transform 0.4s ease;
-    }
-
-    .promo-card:hover .promo-img-wrapper {
-        transform: scale(1.1) rotate(-5deg);
-    }
-
-    .btn-promo {
-        background: #ffffff;
-        color: var(--text-dark);
-        font-weight: 700;
-        padding: 12px 30px;
-        border-radius: 14px;
-        text-decoration: none;
+    .title-tag {
         display: inline-block;
-        transition: 0.3s;
-        border: none;
+        color: var(--tkp-accent);
+        font-weight: 800; font-size: 0.75rem;
+        text-transform: uppercase; letter-spacing: 2px;
+        margin-bottom: 8px;
     }
-
-    .btn-promo:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        background: #f8fafc;
+    .section-title {
+        font-weight: 800; font-size: 2.2rem;
+        background: linear-gradient(135deg, #0f172a 0%, #3b6181 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
     }
 
     /* ===== PRODUCT GRID ===== */
@@ -164,28 +118,44 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 30px; } }
+    @media (min-width: 1200px) { .product-grid { grid-template-columns: repeat(5, 1fr); } }
 
-    @media (min-width: 768px) {
-        .product-grid { grid-template-columns: repeat(4, 1fr); }
+    .hover-lift {
+        transition: var(--transition-standard);
     }
-
-    @media (min-width: 1200px) {
-        .product-grid { grid-template-columns: repeat(5, 1fr); }
+    .hover-lift:hover {
+        transform: translateY(-12px);
     }
 
     .btn-see-all {
         color: var(--tkp-primary);
-        font-weight: 700;
-        text-decoration: none;
-        font-size: 15px;
+        font-weight: 700; text-decoration: none;
+        padding: 12px 24px; border-radius: 100px;
+        background: white; border: 2px solid var(--tkp-primary-light);
+        transition: var(--transition-standard);
+        display: inline-flex; align-items: center;
+    }
+    .btn-see-all:hover {
+        background: var(--tkp-primary); color: white;
+        transform: translateX(5px);
+        box-shadow: 0 10px 20px rgba(59, 97, 129, 0.1);
+    }
+
+    /* Special Background for Featured Section */
+    .featured-container {
+        background: var(--bg-soft);
+        margin: 0 -5vw;
+        padding: 80px 5vw;
+        border-radius: 80px;
     }
 </style>
 
 <div class="container-fluid px-lg-5">
     
     {{-- 1. HERO BANNER --}}
-    <section class="hero-section mb-5">
-        <div class="swiper heroSwiper shadow">
+    <section class="hero-section mb-5" data-aos="fade-in">
+        <div class="swiper heroSwiper">
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
                     <img src="images/iklan.png" class="hero-img">
@@ -197,27 +167,27 @@
                     <img src="https://www.static-src.com/siva/asset/12_2025/NPI-iPad-Pro-M5-dw2000x500.jpg" class="hero-img">
                 </div>
             </div>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next d-none d-md-flex"></div>
+            <div class="swiper-button-prev d-none d-md-flex"></div>
             <div class="swiper-pagination"></div>
         </div>
     </section>
 
-    {{-- 2. KATEGORI PILIHAN (BULAT FULL) --}}
-    <section class="mb-5 pb-4">
-        <div class="text-center mb-5">
-            <h4 class="section-title mb-0">Kategori Pilihan</h4>
-            <div class="title-line"></div>
+    {{-- 2. KATEGORI PILIHAN --}}
+    <section class="mb-5 py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="title-tag">Eksplorasi Gadget</span>
+            <h4 class="section-title">Kategori Pilihan</h4>
         </div>
-        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-5 justify-content-center text-center">
-            @foreach($categories as $category)
-                <div class="col">
+        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4 justify-content-center">
+            @foreach($categories as $index => $category)
+                <div class="col" data-aos="fade-up" data-aos-delay="{{ $index * 50 }}">
                     <a href="{{ route('catalog.index', ['category' => $category->slug]) }}" class="category-wrapper">
                         <div class="category-icon-box">
                             <img src="{{ $category->image_url }}" alt="{{ $category->name }}">
                         </div>
-                        <div class="category-name text-truncate w-100">{{ $category->name }}</div>
-                        <span class="badge rounded-pill bg-light text-muted fw-normal mt-1">{{ $category->products_count }} Item</span>
+                        <div class="category-name text-truncate">{{ $category->name }}</div>
+                        <span class="text-muted small">{{ $category->products_count }} Item</span>
                     </a>
                 </div>
             @endforeach
@@ -225,87 +195,83 @@
     </section>
 
     {{-- 3. PRODUK UNGGULAN --}}
-    <section class="mb-5 py-5" style="background: #fcfdfe; margin: 0 -3rem; padding: 3rem;">
-        <div class="container-fluid px-lg-5">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-                <div>
+    <section class="mb-5">
+        <div class="featured-container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5" data-aos="fade-right">
+                <div class="text-center text-md-start mb-4 mb-md-0">
+                    <span class="title-tag">Most Wanted</span>
                     <h4 class="section-title mb-0">Produk Unggulan</h4>
-                    <p class="text-muted small mt-2">Koleksi terbaik yang paling banyak dicari minggu ini.</p>
+                    <p class="text-muted mt-2 mb-0">Koleksi terbaik yang paling banyak dicari minggu ini.</p>
                 </div>
-                <a href="{{ route('catalog.index') }}" class="btn-see-all">Lihat Semua Katalog <i class="bi bi-arrow-right"></i></a>
+                <a href="{{ route('catalog.index') }}" class="btn-see-all">
+                    Lihat Semua Katalog <i class="bi bi-arrow-right-short fs-4 ms-2"></i>
+                </a>
             </div>
 
-            <div class="product-grid">
+            <div class="product-grid" data-aos="fade-up">
                 @foreach($featuredProducts as $product)
-                    @include('partials.product-card', ['product' => $product])
+                    <div class="hover-lift">
+                        @include('partials.product-card', ['product' => $product])
+                    </div>
                 @endforeach
             </div>
         </div>
     </section>
 
-    {{-- 4. PROMO BANNER DENGAN GAMBAR --}}
-    <section class="mb-5 py-4">
-        <div class="row g-4">
-            {{-- Flash Sale --}}
-            <div class="col-md-6">
-                <div class="promo-card p-5 h-100 text-white shadow" style="background: linear-gradient(135deg, #FFB700 0%, #FF8000 100%);">
-                    <div class="promo-content">
-                        <span class="badge bg-white text-dark mb-3 px-3 shadow-sm">Flash Sale</span>
-                        <h2 class="fw-bold mb-3">Diskon Seru Hari Ini!</h2>
-                        <p class="fs-5 opacity-90">Potongan harga hingga <span class="fw-bold">70%</span> tanpa minimum belanja.</p>
-                        <div class="mt-4">
-                            <a href="#" class="btn-promo">Belanja Sekarang</a>
-                        </div>
-                    </div>
-                    <img src="images/api.png" class="promo-img-wrappers" alt="Flash Sale Illustration">
-                </div>
-            </div>
-
-            {{-- Voucher --}}
-            <div class="col-md-6">
-                <div class="promo-card p-5 h-100 text-white shadow" style="background: linear-gradient(135deg, #3B6181 0%, #5a8bb5 100%);">
-                    <div class="promo-content">
-                        <span class="badge bg-white text-dark mb-3 px-3 shadow-sm">New User</span>
-                        <h2 class="fw-bold mb-3">Voucher Belanja</h2>
-                        <p class="fs-5 opacity-90">Gunakan kode promo spesial:<br><strong class="fs-3 text-warning">BARUUNTUNG</strong></p>
-                        <div class="mt-4">
-                            <a href="{{ route('register') }}" class="btn-promo text-info">Klaim Voucher</a>
-                        </div>
-                    </div>
-                    <img src="images/promo.png" class="promo-img-wrapper" alt="Voucher Illustration">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- 5. PRODUK TERBARU --}}
-    <section class="mb-5">
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <div>
+    {{-- 4. PRODUK TERBARU --}}
+    <section class="mb-5 py-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5" data-aos="fade-up">
+            <div class="text-center text-md-start mb-4 mb-md-0">
+                <span class="title-tag">New Arrivals</span>
                 <h4 class="section-title mb-0">Baru di Katalog</h4>
-                <p class="text-muted small mt-2">Update stok terbaru setiap harinya.</p>
+                <p class="text-muted mt-2 mb-0">Update stok produk terbaru setiap harinya.</p>
             </div>
-            <a href="{{ route('catalog.index') }}" class="btn-see-all">Lihat Semua <i class="bi bi-arrow-right"></i></a>
+            <a href="{{ route('catalog.index') }}" class="btn-see-all">
+                Lihat Semua <i class="bi bi-arrow-right-short fs-4 ms-2"></i>
+            </a>
         </div>
 
-        <div class="product-grid">
+        <div class="product-grid" data-aos="fade-up">
             @foreach($latestProducts as $product)
-                @include('partials.product-card', ['product' => $product])
+                <div class="hover-lift">
+                    @include('partials.product-card', ['product' => $product])
+                </div>
             @endforeach
         </div>
     </section>
 </div>
 
-{{-- SWIPER JS --}}
+{{-- Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS dengan setting yang lebih smooth
+        AOS.init({
+            once: true,
+            duration: 1000,
+            easing: 'ease-in-out-cubic',
+            offset: 100
+        });
+
+        // Initialize Swiper
         new Swiper(".heroSwiper", {
             loop: true,
-            speed: 1000,
-            autoplay: { delay: 5000, disableOnInteraction: false },
-            pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
-            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+            parallax: true,
+            speed: 1500,
+            autoplay: { 
+                delay: 6000, 
+                disableOnInteraction: false 
+            },
+            pagination: { 
+                el: ".swiper-pagination", 
+                clickable: true, 
+                dynamicBullets: true 
+            },
+            navigation: { 
+                nextEl: ".swiper-button-next", 
+                prevEl: ".swiper-button-prev" 
+            },
         });
     });
 </script>

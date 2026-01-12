@@ -1,64 +1,79 @@
 <?php
-// app/Http/Controllers/WishlistController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
 {
     /**
-     * Menampilkan halaman daftar wishlist user.
+     * Menampilkan daftar wishlist user
      */
     public function index()
     {
-        // Ambil produk yang di-wishlist oleh user yang sedang login
-        $products = auth()->user()->wishlists()
-            ->with(['category', 'primaryImage']) // Eager load
-            ->latest('wishlists.created_at')     // Urutkan dari yang baru di-wishlist
+        $user = Auth::user();
+
+        $products = $user->wishlists()
+            ->with(['category', 'images'])            // eager loading relasi
+            ->orderBy('wishlists.created_at', 'desc') // urutkan dari yang terbaru ditambahkan
             ->paginate(12);
 
         return view('wishlist.index', compact('products'));
     }
 
     /**
-     * Toggle wishlist (AJAX handler).
-     * Endpoint ini akan dipanggil oleh JavaScript.
-     *
-     * Konsep Toggle:
-     * - Jika user SUDAH like -> Hapus (Unlike/Detach)
-     * - Jika user BELUM like -> Tambah (Like/Attach)
+     * Menambah / menghapus produk dari wishlist (toggle)
      */
     public function toggle(Product $product)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        // 1. Cek apakah produk ini ada di daftar wishlist user?
-        if ($user->hasInWishlist($product)) {
-            // Skenario: User mau UNLIKE
-            // detach() menghapus record di tabel pivot (wishlists)
-            // berdasarkan user_id dan product_id.
-            $user->wishlists()->detach($product->id);
+        // Cek apakah produk sudah ada di wishlist
+        if ($user->wishlist()->where('product_id', $product->id)->exists()) {
+            // Jika sudah ada → hapus
+            $user->wishlist()->detach($product->id);
 
-            $added   = false; // Indikator untuk frontend: "Hapus warna merah"
-            $message = 'Produk dihapus dari wishlist.';
+            $status  = 'removed';
+            $message = 'Produk berhasil dihapus dari wishlist';
         } else {
-            // Skenario: User mau LIKE
-            // attach() menambahkan record baru di tabel pivot.
-            // Tidak perlu set user_id manual, Laravel otomatis tahu dari $user->wishlists()
-            $user->wishlists()->attach($product->id);
+            // Jika belum ada → tambahkan
+            $user->wishlist()->attach($product->id);
 
-            $added   = true; // Indikator untuk frontend: "Ubah jadi merah"
-            $message = 'Produk ditambahkan ke wishlist!';
+            $status  = 'added';
+            $message = 'Produk berhasil ditambahkan ke wishlist';
         }
 
-        // Return JSON response yang ringan untuk JavaScript
-        // Kita kirim status "added" agar JS tahu harus ganti ikon love jadi merah atau abu-abu.
         return response()->json([
-            'status'  => 'success',
-            'added'   => $added,
+            'success' => true,
+            'status'  => $status,
             'message' => $message,
-            'count'   => $user->wishlists()->count(), // Kirim jumlah terbaru untuk update badge header
+            'count'   => $user->wishlist()->count(),
+        ]);
+    }
+
+    /**
+     * (Opsional) Versi alternatif toggle dengan method helper di model
+     * Lebih bersih jika Anda ingin gunakan helper method
+     */
+    public function toggleAlternative(Product $product)
+    {
+        $user = Auth::user();
+
+        if ($user->hasInWishlist($product)) {
+            $user->removeFromWishlist($product);
+            $status  = 'removed';
+            $message = 'Produk dihapus dari wishlist';
+        } else {
+            $user->addToWishlist($product);
+            $status  = 'added';
+            $message = 'Produk ditambahkan ke wishlist';
+        }
+
+        return response()->json([
+            'success' => true,
+            'status'  => $status,
+            'message' => $message,
+            'count'   => $user->wishlist()->count(),
         ]);
     }
 }

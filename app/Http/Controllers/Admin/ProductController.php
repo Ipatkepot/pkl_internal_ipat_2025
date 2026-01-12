@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -178,7 +177,7 @@ class ProductController extends Controller
 
         foreach ($files as $index => $file) {
             $filename = 'prod-' . $product->id . '-' . uniqid() . '.' . $file->extension();
-            $path = $file->storeAs('products', $filename, 'public');
+            $path     = $file->storeAs('products', $filename, 'public');
 
             $product->images()->create([
                 'image_path' => $path,

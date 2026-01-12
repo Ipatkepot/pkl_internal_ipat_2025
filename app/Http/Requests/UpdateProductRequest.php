@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,7 +11,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -20,26 +19,32 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Ambil ID produk yang sedang diedit
-        $productId = $this->route('product')->id;
+        // Ambil ID produk dari route dengan aman
+        $product   = $this->route('product');
+        $productId = is_object($product) ? $product->id : $product;
 
         return [
             // Field utama produk
             'name'            => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
             'description'     => ['nullable', 'string'],
             'price'           => ['required', 'numeric', 'min:0'],
-            'discount_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'], // Opsional: harga diskon harus lebih kecil dari harga normal
+            'discount_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'stock'           => ['required', 'integer', 'min:0'],
-            'weight'          => ['required', 'integer', 'min:1'], 
+            'weight'          => ['required', 'integer', 'min:1'],
             'category_id'     => ['required', 'exists:categories,id'],
 
-            // Validasi Video Baru
-            'video'           => ['nullable', 'file', 'mimes:mp4,mov,avi', 'max:20480'], // max 20MB
+            // PERBAIKAN VALIDASI VIDEO: Menggunakan mimetypes agar lebih akurat
+            'video'           => [
+                'nullable',
+                'file',
+                'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska',
+                'max:51200', // Dinaikkan ke 50MB agar lebih aman
+            ],
             'delete_video'    => ['nullable', 'boolean'],
 
             // Gambar baru (opsional)
             'images'          => ['nullable', 'array'],
-            'images.*'        => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // max 5MB
+            'images.*'        => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
 
             // Gambar yang akan dihapus
             'delete_images'   => ['nullable', 'array'],
@@ -56,13 +61,12 @@ class UpdateProductRequest extends FormRequest
 
     /**
      * Prepare the data for validation.
-     * Menangani checkbox is_active dan is_featured jika tidak dicentang (null)
      */
     protected function prepareForValidation()
     {
         $this->merge([
-            'is_active' => $this->has('is_active'),
-            'is_featured' => $this->has('is_featured'),
+            'is_active'    => $this->has('is_active'),
+            'is_featured'  => $this->has('is_featured'),
             'delete_video' => $this->has('delete_video'),
         ]);
     }
@@ -78,8 +82,8 @@ class UpdateProductRequest extends FormRequest
             'price.required'       => 'Harga wajib diisi.',
             'category_id.required' => 'Pilih kategori produk.',
             'weight.required'      => 'Berat produk wajib diisi untuk ongkir.',
-            'video.mimes'          => 'Format video harus mp4, mov, atau avi.',
-            'video.max'            => 'Ukuran video maksimal adalah 20MB.',
+            'video.mimetypes'      => 'Format video tidak didukung. Gunakan MP4, MOV, atau AVI.',
+            'video.max'            => 'Ukuran video terlalu besar (Maksimal 50MB).',
             'discount_price.lt'    => 'Harga diskon harus lebih rendah dari harga normal.',
         ];
     }

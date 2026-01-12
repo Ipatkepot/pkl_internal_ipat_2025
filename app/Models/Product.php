@@ -174,16 +174,16 @@ class Product extends Model
     }
 
     public function scopeActive($query)
-    { return $query->where('is_active', true); }
+    {return $query->where('is_active', true);}
 
     public function scopeFeatured($query)
-    { return $query->where('is_featured', true); }
+    {return $query->where('is_featured', true);}
 
     public function scopeInStock($query)
-    { return $query->where('stock', '>', 0); }
+    {return $query->where('stock', '>', 0);}
 
     public function scopeAvailable($query)
-    { return $query->active()->inStock(); }
+    {return $query->active()->inStock();}
 
     public function scopeByCategory($query, string $categorySlug)
     {
@@ -193,16 +193,16 @@ class Product extends Model
     }
 
     public function scopeInCategory($query, int $categoryId)
-    { return $query->where('category_id', $categoryId); }
+    {return $query->where('category_id', $categoryId);}
 
     public function scopePriceRange($query, float $min, float $max)
-    { return $query->whereBetween('price', [$min, $max]); }
+    {return $query->whereBetween('price', [$min, $max]);}
 
     public function scopeMinPrice($query, float $min)
-    { return $query->where('price', '>=', $min); }
+    {return $query->where('price', '>=', $min);}
 
     public function scopeMaxPrice($query, float $max)
-    { return $query->where('price', '<=', $max); }
+    {return $query->where('price', '<=', $max);}
 
     public function scopeOnSale($query)
     {

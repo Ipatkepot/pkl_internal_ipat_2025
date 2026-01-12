@@ -1,198 +1,223 @@
 @extends('layouts.app')
 
-@section('title', 'GadgetMurah - Checkout')
+@section('title', 'Selesaikan Pembayaran - GadgetMurah')
 
 @section('content')
 <style>
-    /* Global Background & Font */
-    body { background-color: #f0f3f7; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Header & Progress Indicator */
+    .checkout-title { font-weight: 800; letter-spacing: -0.5px; color: #1e293b; }
     
-    /* Card Styles */
-    .checkout-card { border-radius: 12px; border: none; }
-    .product-img-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
-    
-    /* Form Styles */
-    .form-label { font-size: 13px; font-weight: 700; color: #6d7588; }
-    .form-control { border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 12px; font-size: 14px; }
-    
-    /* Focus State: Biru Steel */
-    .form-control:focus { 
-        box-shadow: 0 0 0 0.2rem rgba(59, 97, 129, 0.1); 
-        border-color: #3B6181; 
+    /* Card Styling */
+    .checkout-card { 
+        border-radius: 24px; 
+        border: 1px solid rgba(255, 255, 255, 0.8); 
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
     }
-    
-    /* Text & Price Colors */
-    .summary-item { font-size: 14px; color: #31353b; }
-    .total-price { font-size: 18px; color: #3B6181; font-weight: 800; }
-    .text-biru-steel { color: #3B6181 !important; }
-    
-    /* Payment Button: Biru Steel */
+
+    /* Form Design */
+    .form-label { font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .form-control, .form-select { 
+        border-radius: 12px; 
+        border: 1px solid #e2e8f0; 
+        padding: 12px 16px; 
+        font-size: 14px; 
+        background-color: #f8fafc;
+        transition: all 0.2s ease;
+    }
+    .form-control:focus { 
+        background-color: #fff;
+        border-color: #3B6181; 
+        box-shadow: 0 0 0 4px rgba(59, 97, 129, 0.1); 
+    }
+
+    /* Order Summary List */
+    .order-summary-list {
+        max-height: 320px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    .product-mini-card {
+        padding: 12px;
+        border-radius: 16px;
+        background: #f1f5f9;
+        margin-bottom: 12px;
+        border: 1px solid transparent;
+        transition: 0.2s;
+    }
+    .product-mini-card:hover { border-color: #3B6181; background: #fff; }
+
+    /* Payment Info Box */
+    .payment-method-box {
+        background: linear-gradient(135deg, #3B6181 0%, #2d4a63 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    .payment-method-box::after {
+        content: ''; position: absolute; top: -20px; right: -20px;
+        width: 80px; height: 80px; background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+
+    /* Sticky Summary */
+    .sticky-summary { position: sticky; top: 110px; }
+
+    /* Custom Button */
     .btn-pay { 
-        background-color: #3B6181; 
+        background: linear-gradient(135deg, #3B6181 0%, #2d4a63 100%);
         border: none; 
         font-weight: 700; 
-        padding: 15px; 
-        border-radius: 12px; 
-        transition: 0.3s;
-        color: white;
+        padding: 16px;
+        border-radius: 15px;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(59, 97, 129, 0.2);
     }
     .btn-pay:hover { 
-        background-color: #2d4a63; 
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(59, 97, 129, 0.2);
-        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 15px 25px rgba(59, 97, 129, 0.3);
     }
 
-    /* Custom Scrollbar for Summary */
-    .order-summary-list::-webkit-scrollbar { width: 6px; }
-    .order-summary-list::-webkit-scrollbar-track { background: #f1f1f1; }
-    .order-summary-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-
-    .sticky-summary {
-        position: sticky;
-        top: 20px;
-    }
+    .total-amount { color: #3B6181; font-weight: 800; font-size: 1.4rem; }
 </style>
 
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h4 class="fw-bold mb-4 text-dark">Checkout</h4>
+    {{-- Breadcrumb/Header --}}
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="checkout-title mb-2">Checkout</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center">
+                    <li class="breadcrumb-item"><a href="{{ route('cart.index') }}" class="text-decoration-none text-muted">Keranjang</a></li>
+                    <li class="breadcrumb-item active fw-bold text-biru-steel" aria-current="page">Pengiriman & Pembayaran</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-            {{-- ALERT PESAN ERROR/SUKSES --}}
-            @if(session('error'))
-                <div class="alert alert-danger border-0 shadow-sm mb-4 alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            <div class="row g-4">
-                {{-- FORM DATA PENGIRIMAN (KOLOM KIRI) --}}
-                <div class="col-lg-7">
-                    <div class="card checkout-card shadow-sm border-0">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-4 d-flex align-items-center">
-                                <i class="bi bi-geo-alt me-2 text-biru-steel"></i> Alamat Pengiriman
-                            </h6>
-                            
-                            {{-- FORM ACTION --}}
-                            <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form">
-                                @csrf
-
-                                <div class="mb-3">
-                                    <label for="shipping_name" class="form-label">Nama Penerima</label>
-                                    <input type="text" name="shipping_name" id="shipping_name"
-                                        class="form-control @error('shipping_name') is-invalid @enderror"
-                                        value="{{ old('shipping_name', auth()->user()->name) }}" 
-                                        placeholder="Contoh: Budi Santoso" required>
-                                    @error('shipping_name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-7 mb-3">
-                                        <label for="shipping_phone" class="form-label">Nomor Telepon</label>
-                                        <input type="text" name="shipping_phone" id="shipping_phone"
-                                            class="form-control @error('shipping_phone') is-invalid @enderror"
-                                            value="{{ old('shipping_phone') }}" 
-                                            placeholder="Contoh: 0812xxx" required>
-                                        @error('shipping_phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-5 mb-3">
-                                        <label for="postal_code" class="form-label">Kode Pos</label>
-                                        <input type="text" name="postal_code" id="postal_code" 
-                                            class="form-control" value="{{ old('postal_code') }}" 
-                                            placeholder="12345">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="shipping_address" class="form-label">Alamat Lengkap</label>
-                                    <textarea name="shipping_address" id="shipping_address" rows="3"
-                                        class="form-control @error('shipping_address') is-invalid @enderror" 
-                                        placeholder="Nama jalan, nomor rumah, RT/RW, Kecamatan" 
-                                        required>{{ old('shipping_address') }}</textarea>
-                                    @error('shipping_address')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-4">
-                                    <label for="notes" class="form-label">Catatan untuk Penjual (Opsional)</label>
-                                    <textarea name="notes" id="notes" rows="2" class="form-control" 
-                                        placeholder="Warna cadangan, posisi rumah, dll">{{ old('notes') }}</textarea>
-                                </div>
-
-                                <div class="p-3 bg-light rounded-3 mb-1 border-start border-4 border-biru-steel">
-                                    <small class="text-muted d-block mb-1">Metode Pembayaran</small>
-                                    <span class="fw-bold text-biru-steel">
-                                        <i class="bi bi-wallet2 me-2"></i> Midtrans (Virtual Account, E-Wallet, Kartu)
-                                    </span>
-                                </div>
-                            </form>
+    <div class="row g-4">
+        {{-- SISI KIRI: DATA PENGIRIMAN --}}
+        <div class="col-lg-7">
+            <div class="card checkout-card border-0 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary-subtle text-primary p-3 rounded-4 me-3">
+                            <i class="bi bi-truck fs-4"></i>
                         </div>
+                        <h5 class="fw-bold mb-0">Informasi Pengiriman</h5>
+                    </div>
+
+                    <form action="{{ route('checkout.store') }}" method="POST" id="checkout-form">
+                        @csrf
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nama Penerima</label>
+                                <input type="text" name="shipping_name" 
+                                    class="form-control @error('shipping_name') is-invalid @enderror"
+                                    value="{{ old('shipping_name', auth()->user()->name) }}" 
+                                    placeholder="Nama Lengkap">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor Telepon (WhatsApp)</label>
+                                <input type="text" name="shipping_phone" 
+                                    class="form-control @error('shipping_phone') is-invalid @enderror"
+                                    value="{{ old('shipping_phone') }}" 
+                                    placeholder="081234567xxx">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Kode Pos</label>
+                                <input type="text" name="postal_code" class="form-control" 
+                                    value="{{ old('postal_code') }}" placeholder="12345">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Alamat Lengkap</label>
+                                <textarea name="shipping_address" rows="3"
+                                    class="form-control @error('shipping_address') is-invalid @enderror" 
+                                    placeholder="Contoh: Jl. Anggrek No. 12, RT 01/RW 02, Kec. Sukajadi">{{ old('shipping_address') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Catatan (Opsional)</label>
+                                <textarea name="notes" rows="2" class="form-control" 
+                                    placeholder="Warna cadangan atau instruksi kurir">{{ old('notes') }}</textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="payment-method-box shadow-sm border-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold mb-1"><i class="bi bi-shield-check me-2"></i>Pembayaran Aman</h6>
+                        <p class="mb-0 small opacity-75">Tersedia VA, E-Wallet, & Kartu via Midtrans</p>
+                    </div>
+                    <div class="fs-1">
+                        <i class="bi bi-credit-card-2-front"></i>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                {{-- RINGKASAN PESANAN (KOLOM KANAN) --}}
-                <div class="col-lg-5">
-                    <div class="card checkout-card shadow-sm sticky-summary border-0">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-4 d-flex align-items-center">
-                                <i class="bi bi-bag-check me-2 text-biru-steel"></i> Ringkasan Pesanan
-                            </h6>
-                            
-                            <div class="order-summary-list mb-4" style="max-height: 280px; overflow-y: auto; padding-right: 5px;">
-                                @foreach($cartItems as $item)
-                                    <div class="d-flex align-items-center mb-3">
-                                        <img src="{{ $item->product?->image_url }}" 
-                                             class="product-img-mini me-3 border" 
-                                             onerror="this.src='https://placehold.co/50x50?text=No+Img'">
-                                        <div class="flex-grow-1">
-                                            <div class="summary-item fw-bold text-truncate" style="max-width: 150px;">
-                                                {{ $item->product?->name ?? 'Produk Tidak Tersedia' }}
-                                            </div>
-                                            <small class="text-muted">
-                                                {{ $item->quantity }} x Rp {{ number_format($item->product?->price ?? 0, 0, ',', '.') }}
-                                            </small>
-                                        </div>
-                                        <div class="summary-item fw-bold text-dark text-nowrap">
-                                            Rp {{ number_format(($item->product?->price ?? 0) * $item->quantity, 0, ',', '.') }}
+        {{-- SISI KANAN: RINGKASAN PESANAN --}}
+        <div class="col-lg-5">
+            <div class="card checkout-card border-0 sticky-summary">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Detail Pesanan</h5>
+                    
+                    <div class="order-summary-list mb-4">
+                        @foreach($cartItems as $item)
+                            <div class="product-mini-card">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ $item->product?->image_url }}" 
+                                         class="rounded-3 me-3 border bg-white" 
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <p class="fw-bold text-dark text-truncate mb-0 small">
+                                            {{ $item->product?->name }}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <small class="text-muted">{{ $item->quantity }} x</small>
+                                            <span class="fw-bold text-biru-steel small">
+                                                Rp {{ number_format(($item->product?->price ?? 0) * $item->quantity, 0, ',', '.') }}
+                                            </span>
                                         </div>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
+                        @endforeach
+                    </div>
 
-                            <hr class="my-3" style="border-style: dashed;">
+                    <div class="px-2">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Total Harga ({{ $cartItems->sum('quantity') }} Item)</span>
+                            <span class="small fw-bold text-dark">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Biaya Pengiriman</span>
+                            <span class="small fw-bold text-success">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                        </div>
+                        
+                        <div class="my-4 py-3 border-top border-bottom border-dashed text-center" style="border-top-style: dashed !important; border-bottom-style: dashed !important;">
+                            <span class="text-muted d-block small mb-1">Total Tagihan</span>
+                            <span class="total-amount">Rp {{ number_format($subtotal + $shippingCost, 0, ',', '.') }}</span>
+                        </div>
 
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted small">Total Harga ({{ $cartItems->sum('quantity') }} barang)</span>
-                                <span class="small fw-bold">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted small">Total Ongkos Kirim</span>
-                                <span class="small fw-bold">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mt-3 pt-3 border-top">
-                                <span class="fw-bold fs-5 text-dark">Total Tagihan</span>
-                                <span class="total-price">Rp {{ number_format($subtotal + $shippingCost, 0, ',', '.') }}</span>
-                            </div>
+                        <button type="submit" form="checkout-form" class="btn btn-pay btn-lg w-100 text-white">
+                            Selesaikan & Bayar <i class="bi bi-shield-lock ms-2"></i>
+                        </button>
 
-                            {{-- TOMBOL SUBMIT (Terhubung ke ID form di kolom kiri) --}}
-                            <button type="submit" form="checkout-form" class="btn btn-pay w-100 shadow-sm d-flex justify-content-center align-items-center mt-4">
-                                <span>Bayar Sekarang</span>
-                                <i class="bi bi-arrow-right-short fs-4 ms-1"></i>
-                            </button>
-
-                            <div class="mt-3 text-center">
-                                <a href="{{ route('cart.index') }}" class="text-muted small text-decoration-none">
-                                    <i class="bi bi-chevron-left"></i> Kembali ke Keranjang
-                                </a>
-                            </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-muted" style="font-size: 11px;">
+                                <i class="bi bi-info-circle me-1"></i> Dengan menekan tombol, Anda menyetujui syarat & ketentuan yang berlaku di GadgetMurah.
+                            </p>
                         </div>
                     </div>
                 </div>

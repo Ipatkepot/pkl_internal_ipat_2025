@@ -23,7 +23,7 @@
     @else
         <div class="text-center py-5 bg-light rounded-3 shadow-sm">
             <div class="mb-3">
-                <i class="bi bi-heart text-secondary" style="font-size: 4rem;"></i>
+                <i class="bi bi-heartbreak text-secondary" style="font-size: 4rem;"></i>
             </div>
             <h3 class="h5 fw-medium text-dark">Wishlist Kosong</h3>
             <p class="text-muted mt-1">Simpan produk yang kamu suka di sini.</p>

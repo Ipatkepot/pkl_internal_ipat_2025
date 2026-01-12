@@ -117,7 +117,7 @@
                     @empty
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <img src="{{ asset('img/empty-state.svg') }}" alt="Empty" style="width: 120px;" class="mb-3 opacity-50">
+                           <i><i class="bi bi-box-seam-fill me-1"></i>
                             <p class="text-muted">Belum ada produk yang ditambahkan.</p>
                         </td>
                     </tr>

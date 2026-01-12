@@ -3,101 +3,175 @@
 @section('title', $product->name)
 
 @section('content')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 <style>
-    /* Tema Biru Steel */
-    .breadcrumb-item a { color: #3B6181; text-decoration: none; }
-    .breadcrumb-item.active { color: #6d7588; }
-    .text-biru-steel { color: #3B6181 !important; }
-    .btn-biru-steel {
-        background-color: #3B6181; border-color: #3B6181; color: white; transition: 0.3s;
-    }
-    .btn-biru-steel:hover {
-        background-color: #2d4a63; border-color: #2d4a63;
-    }
-    .btn-outline-biru-steel {
-        border-color: #3B6181; color: #3B6181;
-    }
-    .btn-outline-biru-steel:hover {
-        background-color: #3B6181; color: white;
+    body {
+        background-color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #1e293b;
     }
 
-    /* Gambar & Video Utama */
+    :root {
+        --steel-blue: #3B6181;
+        --steel-blue-dark: #2d4a63;
+        --steel-blue-light: rgba(59, 97, 129, 0.1);
+    }
+
+    /* Breadcrumb Styling */
+    .breadcrumb-item a { color: #64748b; text-decoration: none; font-size: 13px; transition: 0.2s; }
+    .breadcrumb-item a:hover { color: var(--steel-blue); }
+    .breadcrumb-item.active { color: var(--steel-blue); font-weight: 700; font-size: 13px; }
+
+    /* Product Gallery */
+    .product-gallery-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: none;
+    }
+
     .main-image-container {
         position: relative;
-        height: 450px;
-        background: #ffffff;
-        border-radius: 15px 15px 0 0;
-        overflow: hidden;
-    }
-    #main-image, #main-video {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+        height: 480px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 20px;
-        transition: opacity 0.4s ease;
-    }
-    #main-video {
-        display: none;
-        background: #000;
-        padding: 0;
     }
 
-    /* Navigasi Gambar */
+    #main-image, #main-video {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: all 0.4s ease;
+    }
+
+    #main-video { display: none; width: 100%; height: 100%; border-radius: 15px; }
+
     .nav-arrow {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.85);
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        color: #3B6181;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 20;
-        transition: all 0.3s;
-    }
-    .nav-arrow:hover {
         background: white;
-        color: #2d4a63;
-        transform: translateY(-50%) scale(1.1);
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        color: var(--steel-blue);
+        z-index: 10;
+        transition: 0.3s;
     }
-    .nav-prev { left: 20px; }
-    .nav-next { right: 20px; }
+    .nav-arrow:hover { background: var(--steel-blue); color: white; }
 
-    /* Thumbnail */
     .thumbnail-scroll {
         display: flex;
         gap: 12px;
+        padding: 0 20px 20px;
+        justify-content: center;
         overflow-x: auto;
-        scroll-behavior: smooth;
-        padding: 12px 0;
-        scrollbar-width: none;
     }
-    .thumbnail-scroll::-webkit-scrollbar { display: none; }
     .thumbnail-img {
-        width: 80px;
-        height: 80px;
+        width: 75px;
+        height: 75px;
+        border-radius: 14px;
         object-fit: cover;
-        border-radius: 8px;
-        border: 2px solid transparent;
-        opacity: 0.7;
-        transition: all 0.3s;
         cursor: pointer;
-        flex-shrink: 0;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+        background: #f8fafc;
+    }
+    .thumbnail-img.active {
+        border-color: var(--steel-blue);
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(59, 97, 129, 0.2);
+    }
+
+    /* Info Section */
+    .product-info-card {
+        background: white;
+        border-radius: 24px;
+        padding: 35px;
+        border: none;
+    }
+
+    .price-tag {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--steel-blue);
+        letter-spacing: -1px;
+    }
+
+    /* Meta Info (Stok & Berat) */
+    .meta-container {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    .meta-item {
+        flex: 1;
+        background: #fcfcfd;
+        border: 1px solid #f1f5f9;
+        border-radius: 18px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .meta-icon {
+        width: 42px;
+        height: 42px;
+        background: var(--steel-blue-light);
+        color: var(--steel-blue);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.2rem;
     }
-    .thumbnail-img:hover, .thumbnail-img.active {
-        opacity: 1;
-        border-color: #3B6181;
-        transform: scale(1.08);
+    .meta-label { display: block; font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
+    .meta-value { display: block; font-size: 15px; font-weight: 700; color: #1e293b; }
+
+    /* Stock Progress Bar */
+    .stock-progress { height: 6px; border-radius: 10px; background: #f1f5f9; margin-top: 6px; overflow: hidden; }
+    .stock-bar { height: 100%; background: var(--steel-blue); transition: width 1s ease-in-out; }
+
+    /* Quantity & Buttons */
+    .qty-wrapper {
+        background: #f1f5f9;
+        border-radius: 14px;
+        padding: 6px;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 25px;
     }
+    .qty-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        background: white;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .qty-btn:hover { background: var(--steel-blue); color: white; }
+    #qty-display {
+        background: transparent; border: none; width: 60px; text-align: center; font-weight: 800;
+    }
+
+    .btn-buy {
+        background: linear-gradient(135deg, var(--steel-blue) 0%, var(--steel-blue-dark) 100%);
+        color: white; border: none; border-radius: 15px; padding: 16px; font-weight: 700; transition: 0.3s;
+    }
+    .btn-buy:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(59, 97, 129, 0.3); color: white; }
+
+    .btn-wishlist {
+        background: white; border: 2px solid #f1f5f9; border-radius: 15px; padding: 12px; transition: 0.3s;
+    }
+    .btn-wishlist:hover { border-color: #fda4af; color: #e11d48; background: #fff1f2; }
 </style>
 
 <div class="container py-4">
@@ -106,19 +180,14 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('catalog.index') }}">Katalog</a></li>
-            <li class="breadcrumb-item">
-                <a href="{{ route('catalog.index', ['category' => $product->category->slug]) }}">
-                    {{ $product->category->name }}
-                </a>
-            </li>
-            <li class="breadcrumb-item active">{{ Str::limit($product->name, 30) }}</li>
+            <li class="breadcrumb-item active">{{ Str::limit($product->name, 25) }}</li>
         </ol>
     </nav>
 
-    <div class="row">
-        {{-- Media Section --}}
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
+    <div class="row g-4">
+        {{-- Left: Media Gallery --}}
+        <div class="col-lg-6">
+            <div class="product-gallery-card shadow-sm">
                 <div class="main-image-container">
                     @if($product->video_url)
                         <video id="main-video" controls controlsList="nodownload">
@@ -126,134 +195,112 @@
                         </video>
                     @endif
 
-                    <img src="{{ $product->image_url }}" id="main-image" alt="{{ $product->name }}">
+                    <img src="{{ asset('storage/' . $product->image) }}" id="main-image" alt="{{ $product->name }}">
 
-                    @if($product->has_discount)
-                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 fs-6 px-3 py-2 shadow-sm" style="z-index: 25;">
-                            -{{ $product->discount_percentage }}%
-                        </span>
-                    @endif
-
-                    @if($product->images->count() > 1 || $product->video_url)
-                        <button class="nav-arrow nav-prev" onclick="changeMainImage(-1)">‹</button>
-                        <button class="nav-arrow nav-next" onclick="changeMainImage(1)">›</button>
+                    @if($product->images->count() > 0 || $product->video_url)
+                        <button class="nav-arrow" style="left: 15px;" onclick="changeMedia(-1)">‹</button>
+                        <button class="nav-arrow" style="right: 15px;" onclick="changeMedia(1)">›</button>
                     @endif
                 </div>
 
-                <div class="card-body bg-light border-top">
-                    <div class="thumbnail-scroll">
-                        @if($product->video_url)
-                            <div class="thumbnail-img bg-dark active" id="thumb-video" onclick="setMainVideo()">
-                                <i class="bi bi-play-circle-fill text-white fs-2"></i>
-                            </div>
-                        @endif
+                <div class="thumbnail-scroll">
+                    @if($product->video_url)
+                        <div class="thumbnail-img d-flex align-items-center justify-content-center bg-dark text-white active" 
+                             id="thumb-video" onclick="setVideo()">
+                            <i class="bi bi-play-circle-fill fs-3"></i>
+                        </div>
+                    @endif
 
-                        @foreach($product->images as $index => $image)
-                            <img src="{{ asset('storage/' . $image->image_path) }}"
-                                 class="thumbnail-img {{ (!$product->video_url && $loop->first) ? 'active' : '' }}"
-                                 data-index="{{ $index }}"
-                                 onclick="setMainImage({{ $index }})">
-                        @endforeach
-                    </div>
+                    @foreach($product->images as $index => $img)
+                        <img src="{{ asset('storage/' . $img->image_path) }}" 
+                             class="thumbnail-img {{ (!$product->video_url && $loop->first) ? 'active' : '' }}" 
+                             data-index="{{ $index }}"
+                             onclick="setImage({{ $index }})">
+                    @endforeach
                 </div>
             </div>
         </div>
 
-        {{-- Product Info --}}
+        {{-- Right: Product Info --}}
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-                <div class="card-body p-4">
-                    <a href="{{ route('catalog.index', ['category' => $product->category->slug]) }}"
-                       class="badge bg-light text-biru-steel text-decoration-none mb-2 px-3 py-2 border">
-                        {{ $product->category->name }}
-                    </a>
+            <div class="product-info-card shadow-sm">
+                <h1 class="fw-bold mb-3 h2">{{ $product->name }}</h1>
+                
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="price-tag">{{ $product->formatted_price }}</div>
+                    @if($product->has_discount)
+                        <span class="text-muted text-decoration-line-through">{{ $product->formatted_original_price }}</span>
+                    @endif
+                </div>
 
-                    <h2 class="fw-bold mb-3" style="color: #31353b;">{{ $product->name }}</h2>
-
-                    <div class="mb-4 p-3 bg-light rounded-3">
-                        @if($product->has_discount)
-                            <div class="text-muted text-decoration-line-through small">
-                                {{ $product->formatted_original_price }}
-                            </div>
-                        @endif
-                        <div class="h2 text-biru-steel fw-bold mb-0">
-                            {{ $product->formatted_price }}
+                {{-- Meta Info: Stok & Berat --}}
+                <div class="meta-container">
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="bi bi-box-seam"></i></div>
+                        <div>
+                            <span class="meta-label">Berat</span>
+                            <span class="meta-value">{{ $product->weight }} Gram</span>
                         </div>
                     </div>
-
-                    {{-- Status Stok --}}
-                    <div class="mb-4">
-                        @if($product->stock > 10)
-                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
-                                <i class="bi bi-check-circle-fill me-1"></i> Stok Tersedia
+                    <div class="meta-item">
+                        <div class="meta-icon"><i class="bi bi-archive"></i></div>
+                        <div class="w-100">
+                            <span class="meta-label">Stok Barang</span>
+                            <span class="meta-value {{ $product->stock < 5 ? 'text-danger' : '' }}">
+                                {{ $product->stock > 0 ? $product->stock . ' Unit' : 'Habis' }}
                             </span>
-                        @elseif($product->stock > 0)
-                            <span class="badge bg-warning bg-opacity-10 text-dark px-3 py-2 rounded-pill">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Stok Terbatas: {{ $product->stock }}
-                            </span>
-                        @else
-                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
-                                <i class="bi bi-x-circle-fill me-1"></i> Stok Habis
-                            </span>
-                        @endif
-                    </div>
-
-                    {{-- Actions --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold small text-muted">Jumlah</label>
-                        <div class="input-group shadow-sm mb-3" style="width: 140px;">
-                            <button type="button" class="btn btn-outline-secondary" onclick="decrementQty()">-</button>
-                            <input type="number" id="quantity-display" value="1" min="1" max="{{ $product->stock }}"
-                                   class="form-control text-center fw-bold border-0" readonly>
-                            <button type="button" class="btn btn-outline-secondary" onclick="incrementQty()">+</button>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <form action="{{ route('cart.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" id="quantity-cart" value="1">
-                                    <button type="submit" class="btn btn-outline-biru-steel w-100 fw-bold shadow-sm" @if($product->stock == 0) disabled @endif>
-                                        <i class="bi bi-cart-plus me-2"></i> Keranjang
-                                    </button>
-                                </form>
+                            @if($product->stock > 0)
+                            <div class="stock-progress">
+                                @php $percent = min(($product->stock / 20) * 100, 100); @endphp
+                                <div class="stock-bar" style="width: {{ $percent }}%"></div>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <form action="{{ route('checkout.direct') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" id="quantity-direct" value="1">
-                                    <button type="submit" class="btn btn-biru-steel w-100 fw-bold shadow-sm" @if($product->stock == 0) disabled @endif>
-                                        <i class="bi bi-credit-card-2-front me-2"></i> Beli Sekarang
-                                    </button>
-                                </form>
-                            </div>
+                            @endif
                         </div>
                     </div>
+                </div>
 
-                    {{-- Tombol Wishlist --}}
-                    @auth
-                        <button type="button" onclick="toggleWishlist({{ $product->id }})"
-                                class="btn btn-outline-danger w-100 mb-4 wishlist-btn-{{ $product->id }} border-2">
-                            <i class="bi {{ auth()->user()->hasInWishlist($product) ? 'bi-heart-fill' : 'bi-heart' }} me-2"></i>
-                            {{ auth()->user()->hasInWishlist($product) ? 'Hapus dari Wishlist' : 'Simpan ke Wishlist' }}
-                        </button>
-                    @endauth
-
-                    @guest
-                        <div class="alert alert-info mb-4 py-3 text-center">
-                            <strong>Login dulu</strong> untuk belanja atau wishlist!
-                            <a href="{{ route('login') }}" class="btn btn-biru-steel btn-sm ms-3">Login</a>
-                        </div>
-                    @endguest
-
-                    <hr class="my-4">
-
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Deskripsi Produk</h6>
-                        <p class="text-muted lh-base">{!! nl2br(e($product->description)) !!}</p>
+                <div class="mb-4">
+                    <label class="small fw-bold text-muted mb-2 d-block text-uppercase">Tentukan Jumlah</label>
+                    <div class="qty-wrapper shadow-sm">
+                        <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                        <input type="number" id="qty-display" value="1" readonly>
+                        <button class="qty-btn" onclick="updateQty(1)">+</button>
                     </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <form action="{{ route('cart.add') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" id="qty-cart" value="1">
+                            <button class="btn btn-outline-biru-steel w-100 py-3 fw-bold" @disabled($product->stock <= 0)>
+                                <i class="bi bi-cart-plus me-2"></i> Keranjang
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-sm-6">
+                        <form action="{{ route('checkout.direct') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" id="qty-direct" value="1">
+                            <button class="btn btn-buy w-100 py-3" @disabled($product->stock <= 0)>
+                                Beli Sekarang
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <button type="button" onclick="toggleWishlist({{ $product->id }})" 
+                        class="btn btn-wishlist w-100 fw-bold wishlist-btn-{{ $product->id }}">
+                    <i class="bi {{ auth()->user() && auth()->user()->hasInWishlist($product) ? 'bi-heart-fill text-danger' : 'bi-heart' }} me-2"></i>
+                    <span>{{ auth()->user() && auth()->user()->hasInWishlist($product) ? 'Hapus dari Wishlist' : 'Simpan ke Wishlist' }}</span>
+                </button>
+
+                <hr class="my-5">
+                <h6 class="fw-bold text-uppercase mb-3" style="font-size: 13px; letter-spacing: 1px;">Deskripsi Produk</h6>
+                <div class="text-muted lh-lg" style="font-size: 14px;">
+                    {!! nl2br(e($product->description)) !!}
                 </div>
             </div>
         </div>
@@ -262,69 +309,70 @@
 
 @push('scripts')
 <script>
-    const images = @json($product->images->pluck('image_path')->map(function($path) {
-        return asset('storage/' . $path);
-    })->toArray());
-
+    // Data Images dari Backend
+    const extraImages = @json($product->images->pluck('image_path')->map(fn($p) => asset('storage/'.$p)));
+    const mainImgUrl = "{{ asset('storage/' . $product->image) }}";
+    const allImages = [mainImgUrl, ...extraImages];
+    
     let currentIndex = 0;
-    let isVideoMode = {{ $product->video_url ? 'true' : 'false' }};
-    const mainImg = document.getElementById('main-image');
-    const mainVid = document.getElementById('main-video');
+    let isVideo = {{ $product->video_url ? 'true' : 'false' }};
+    const imgEl = document.getElementById('main-image');
+    const vidEl = document.getElementById('main-video');
 
-    function setMainVideo() {
-        if (!mainVid) return;
-        isVideoMode = true;
-        mainImg.style.display = 'none';
-        mainVid.style.display = 'block';
-        document.querySelectorAll('.thumbnail-img').forEach(t => t.classList.remove('active'));
-        document.getElementById('thumb-video').classList.add('active');
+    function setVideo() {
+        isVideo = true;
+        imgEl.style.display = 'none';
+        vidEl.style.display = 'block';
+        updateThumbs('video');
     }
 
-    function setMainImage(index) {
-        isVideoMode = false;
-        currentIndex = index;
-        if (mainVid) { mainVid.pause(); mainVid.style.display = 'none'; }
-        mainImg.style.display = 'block';
-        mainImg.src = images[currentIndex];
-        document.querySelectorAll('.thumbnail-img').forEach(thumb => {
-            thumb.classList.toggle('active', thumb.getAttribute('data-index') == index);
+    function setImage(idx) {
+        isVideo = false;
+        currentIndex = idx;
+        if(vidEl) { vidEl.pause(); vidEl.style.display = 'none'; }
+        imgEl.style.display = 'block';
+        imgEl.src = allImages[idx];
+        updateThumbs(idx);
+    }
+
+    function updateThumbs(activeKey) {
+        document.querySelectorAll('.thumbnail-img').forEach(t => {
+            t.classList.remove('active');
+            if(activeKey === 'video' && t.id === 'thumb-video') t.classList.add('active');
+            if(t.dataset.index == activeKey) t.classList.add('active');
         });
-        if(document.getElementById('thumb-video')) document.getElementById('thumb-video').classList.remove('active');
     }
 
-    function changeMainImage(direction) {
-        const hasVideo = {{ $product->video_url ? 'true' : 'false' }};
-        if (isVideoMode) {
-            setMainImage(direction > 0 ? 0 : images.length - 1);
+    function changeMedia(dir) {
+        if(isVideo) {
+            setImage(dir > 0 ? 0 : allImages.length - 1);
         } else {
-            let nextIndex = currentIndex + direction;
-            if (nextIndex >= images.length) {
-                hasVideo ? setMainVideo() : setMainImage(0);
-            } else if (nextIndex < 0) {
-                hasVideo ? setMainVideo() : setMainImage(images.length - 1);
+            let next = currentIndex + dir;
+            if(next >= allImages.length) {
+                {{ $product->video_url ? 'setVideo()' : 'setImage(0)' }};
+            } else if(next < 0) {
+                {{ $product->video_url ? 'setVideo()' : 'setImage(allImages.length - 1)' }};
             } else {
-                setMainImage(nextIndex);
+                setImage(next);
             }
         }
     }
 
-    function updateQuantity(value) {
-        document.getElementById('quantity-display').value = value;
-        document.getElementById('quantity-cart').value = value;
-        document.getElementById('quantity-direct').value = value;
+    function updateQty(val) {
+        let input = document.getElementById('qty-display');
+        let current = parseInt(input.value);
+        let next = current + val;
+        let max = {{ $product->stock }};
+        
+        if(next >= 1 && next <= max) {
+            input.value = next;
+            document.getElementById('qty-cart').value = next;
+            document.getElementById('qty-direct').value = next;
+        }
     }
 
-    function incrementQty() {
-        const display = document.getElementById('quantity-display');
-        if (parseInt(display.value) < parseInt(display.max)) updateQuantity(parseInt(display.value) + 1);
-    }
-
-    function decrementQty() {
-        const display = document.getElementById('quantity-display');
-        if (parseInt(display.value) > 1) updateQuantity(parseInt(display.value) - 1);
-    }
-
-    window.onload = () => { if ({{ $product->video_url ? 'true' : 'false' }}) setMainVideo(); };
+    // Panggil video pertama kali jika ada
+    window.onload = () => { if(isVideo) setVideo(); };
 </script>
 @endpush
 @endsection

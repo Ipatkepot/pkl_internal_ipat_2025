@@ -70,8 +70,8 @@ class StoreProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'video.mimes' => 'Format video yang didukung hanya mp4, mov, dan avi.',
-            'video.max'   => 'Ukuran video terlalu besar, maksimal 20MB.',
+            'video.mimes'       => 'Format video yang didukung hanya mp4, mov, dan avi.',
+            'video.max'         => 'Ukuran video terlalu besar, maksimal 20MB.',
             'discount_price.lt' => 'Harga diskon harus lebih rendah dari harga asli.',
         ];
     }

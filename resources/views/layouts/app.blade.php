@@ -46,7 +46,7 @@
 
 <body>
     {{-- 1. LOADER COMPONENT (Muncul pertama kali saat body render) --}}
-    <x-loader />
+    @include('partials.admin-loader')
 
     {{-- ============================================
          NAVBAR
